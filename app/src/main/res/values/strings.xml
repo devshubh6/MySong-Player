@@ -1,0 +1,245 @@
+<resources>
+    <string name="app_name">Mysong</string>
+    <string name="app_description">Music Streaming &amp; Offline Player</string>
+    <string name="tagline">Your music. Your way.</string>
+
+    <!-- Tabs -->
+    <string name="tab_home">Home</string>
+    <string name="tab_library">Library</string>
+    <string name="tab_settings">Settings</string>
+
+    <!-- Home -->
+    <string name="search_hint">Search songs, albums, artists…</string>
+    <string name="feed_trending">Trending Now</string>
+    <string name="feed_top_charts">Top Charts</string>
+    <string name="feed_featured_albums">Featured Albums</string>
+    <string name="feed_popular_artists">Popular Artists</string>
+    <string name="feed_top_playlists">Top Playlists</string>
+    <string name="feed_empty">No results found. Try another search.</string>
+    <string name="loading">Loading…</string>
+    <string name="no_network">No network connection. Showing offline library.</string>
+    <string name="searching">Searching…</string>
+
+    <!-- Library -->
+    <string name="library_title">Your Library</string>
+    <string name="folder_downloads">Downloads</string>
+    <string name="folder_downloads_desc">Tracks saved to your device for 100% offline playback</string>
+    <string name="folder_liked">Liked Songs</string>
+    <string name="folder_liked_desc">All the tracks you have loved</string>
+    <string name="folder_cached">Cached Songs</string>
+    <string name="folder_cached_desc">Auto-cached during streaming for instant replay</string>
+    <string name="create_playlist">Create Playlist</string>
+    <string name="your_playlists">Your Playlists</string>
+    <string name="no_playlists">No playlists yet. Tap to create your first one.</string>
+    <string name="playlist_name_hint">Playlist name</string>
+    <string name="playlist_created">Playlist created</string>
+    <string name="playlist_renamed">Playlist renamed</string>
+    <string name="playlist_deleted">Playlist deleted</string>
+    <string name="rename">Rename</string>
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="empty_folder">Nothing here yet</string>
+    <string name="empty_folder_desc">Songs you add will show up in this folder.</string>
+    <string name="playlist_songs">View Songs</string>
+    <string name="liked_songs_count">%1$d loved tracks</string>
+    <string name="downloads_count">%1$d tracks saved on this device</string>
+    <string name="cached_count">%1$d tracks ready for instant replay</string>
+
+    <!-- Player -->
+    <string name="lyrics">Lyrics</string>
+    <string name="view_lyrics">View Lyrics</string>
+    <string name="lyrics_unavailable">Lyrics are not available for this song</string>
+
+    <!-- Equalizer -->
+    <string name="enable_equalizer">Enable Equalizer</string>
+
+    <!-- Offline -->
+    <string name="offline_mode_active">Offline Mode Active</string>
+
+    <!-- Downloads -->
+    <string name="delete_download">Delete Download</string>
+    <string name="delete_download_confirm">Delete this downloaded song from the device?</string>
+    <string name="download_deleted">Download deleted</string>
+
+    <!-- Home -->
+    <string name="select_languages">Select Languages</string>
+    <string name="apply">Apply</string>
+    <string name="for_you">For You</string>
+    <string name="feed_party">Party Hits</string>
+    <string name="feed_workout">Workout Energy</string>
+    <string name="feed_romantic">Romantic Vibes</string>
+    <string name="feed_chill">Chill &amp; Lo-Fi</string>
+    <string name="feed_devotional">Devotional</string>
+    <string name="feed_classics">Old Classics</string>
+    <string name="feed_remixes">Top Remixes</string>
+
+    <!-- Queue filter -->
+    <string name="filter_all">All</string>
+    <string name="player_queue">Queue</string>
+    <string name="add_to_queue">Add to queue</string>
+    <string name="play_all">Play All</string>
+    <string name="share_track">Share Track</string>
+    <string name="view_artist">View Artist / Album</string>
+    <string name="add_to_playlist">Add to Playlist</string>
+    <string name="new_playlist">New Playlist</string>
+    <string name="sleep_timer">Sleep Timer</string>
+    <string name="sleep_15">15 min</string>
+    <string name="sleep_30">30 min</string>
+    <string name="sleep_45">45 min</string>
+    <string name="sleep_60">60 min</string>
+    <string name="sleep_custom">Custom (minutes)</string>
+    <string name="sleep_start">Start</string>
+    <string name="sleep_stop">Stop Timer</string>
+    <string name="sleep_active">Sleep: %1$s</string>
+    <string name="equalizer">Equalizer</string>
+    <string name="eq_preset">Preset: %1$s</string>
+    <string name="eq_preset_flat">Flat</string>
+    <string name="eq_preset_pop">Pop</string>
+    <string name="eq_preset_rock">Rock</string>
+    <string name="eq_preset_classical">Classical</string>
+    <string name="eq_preset_jazz">Jazz</string>
+    <string name="eq_preset_bass">Bass Boost</string>
+    <string name="eq_preset_treble">Treble Boost</string>
+    <string name="eq_preset_custom">Custom</string>
+    <string name="eq_bass_boost">3D Bass Boost</string>
+    <string name="eq_virtualizer">Virtualizer</string>
+    <string name="speed_2x">2× speed</string>
+    <string name="speed_1x">1× speed</string>
+    <string name="download_started">Downloading…</string>
+    <string name="download_complete">Download complete</string>
+    <string name="download_failed">Download failed</string>
+    <string name="download_progress">Downloading %1$s%%</string>
+    <string name="liked_added">Added to Liked Songs</string>
+    <string name="liked_removed">Removed from Liked Songs</string>
+    <string name="added_to_playlist">Added to %1$s</string>
+    <string name="queue_empty">Queue is empty</string>
+    <string name="offline_playback">Playing from local storage (offline)</string>
+    <string name="now_playing">Now Playing</string>
+
+    <!-- Search top artist card -->
+    <string name="top_artist_label">Top Artist</string>
+    <string name="play_artist_radio">Play Artist Radio</string>
+
+    <!-- Audio modes -->
+    <string name="audio_mode_setting">Playback Mode</string>
+    <string name="audio_mode_normal">Normal</string>
+    <string name="audio_mode_slowed">Slowed + Reverb</string>
+    <string name="audio_mode_nightcore">Nightcore</string>
+
+    <!-- Crossfade / auto-mix -->
+    <string name="crossfade_setting">Crossfade (seconds)</string>
+    <string name="crossfade_desc">Fades songs into each other; 0% disables it.</string>
+    <string name="crossfade_value">%1$d s</string>
+    <string name="auto_mix_setting">Auto-Mix similar songs</string>
+    <string name="auto_mix_desc">Continuously appends similar tracks when the queue ends.</string>
+
+    <!-- AMOLED -->
+    <string name="amoled_setting">AMOLED Pure Black</string>
+    <string name="amoled_desc">Force true #000000 surfaces to save OLED power.</string>
+
+    <!-- Car mode -->
+    <string name="car_mode_setting">Car Mode</string>
+    <string name="car_mode_desc">Giant touch controls for driving.</string>
+    <string name="car_mode_open">Open</string>
+    <string name="section_extras">Extras</string>
+    <string name="car_mode">Car Mode</string>
+    <string name="car_pause">Pause</string>
+    <string name="car_play">Play</string>
+    <string name="car_previous">Previous</string>
+    <string name="car_next">Next</string>
+    <string name="car_exit">Exit</string>
+    <string name="car_swipe_hint">Swipe left / right to skip tracks</string>
+
+    <!-- Playlist export / import -->
+    <string name="export_playlists">Export Playlists</string>
+    <string name="import_playlists">Import Playlists</string>
+    <string name="export_desc">Save your playlists as .json or .m3u files.</string>
+    <string name="playlists_exported">Playlists exported</string>
+    <string name="playlists_imported">Playlists imported</string>
+    <string name="playlists_export_empty">No playlists to export</string>
+    <string name="playlists_export_failed">Export failed</string>
+    <string name="playlists_import_failed">Import failed — unsupported file</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="section_appearance">Appearance</string>
+    <string name="theme_mode">Theme</string>
+    <string name="theme_dark">Dark</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_system">System Default</string>
+    <string name="accent_color">Accent Color</string>
+
+    <!-- Search -->
+    <string name="search_browse">Browse All</string>
+    <string name="search_recents">Recent Searches</string>
+    <string name="search_clear_recents">Clear</string>
+    <string name="search_no_results">No songs found. Try a different search.</string>
+    <string name="search_suggestions_title">Suggestions</string>
+    <string name="search_no_results_title">Search Results</string>
+
+    <!-- Artist / Album detail pages -->
+    <string name="detail_back">Back</string>
+    <string name="detail_play_all">Play All</string>
+    <string name="detail_shuffle">Shuffle</string>
+    <string name="detail_no_songs">No songs yet</string>
+    <string name="detail_loading">Loading…</string>
+    <string name="detail_added_liked">Added to Liked Songs</string>
+    <string name="artist_song_count">%d songs</string>
+    <string name="album_header">Album</string>
+    <string name="album_track_count">%d tracks</string>
+    <string name="hint_filter_artist">Search artist songs</string>
+    <string name="hint_filter_album">Filter album tracks</string>
+    <string name="menu_play">Play</string>
+    <string name="menu_love">Love</string>
+    <string name="menu_share">Share</string>
+    <string name="search_category_pop">Pop</string>
+    <string name="search_category_bollywood">Bollywood</string>
+    <string name="search_category_lofi">Lo-Fi</string>
+    <string name="search_category_workout">Workout</string>
+    <string name="search_category_bhajans">Devotional</string>
+    <string name="search_category_classics">Old Classics</string>
+    <string name="section_audio">Audio</string>
+    <string name="quality_setting">Download &amp; Streaming Quality</string>
+    <string name="quality_low">Low · 96 kbps</string>
+    <string name="quality_medium">Medium · 160 kbps</string>
+    <string name="quality_high">High · 320 kbps</string>
+    <string name="section_content">Content</string>
+    <string name="language_setting">Language</string>
+    <string name="country_setting">Country / Region</string>
+    <string name="section_storage">Cache &amp; Storage</string>
+    <string name="cache_size">Cache Size: %1$s</string>
+    <string name="clear_cache">Clear Cache</string>
+    <string name="cache_cleared">Cache cleared</string>
+    <string name="section_about">About</string>
+    <string name="about_version">App Version: %1$s</string>
+    <string name="about_developer">Developer: Shubham Singh Yadav</string>
+    <string name="about_developer_desc">B.Tech Student · Android &amp; Backend Developer</string>
+    <string name="about_github">GitHub: https://github.com/devshubh6</string>
+    <string name="about_api">API: JioSaavn Unofficial API</string>
+    <string name="about_api_desc">Music data &amp; streams provided by the JioSaavn Unofficial API</string>
+    <string name="about_licenses">Open Source Licenses</string>
+    <string name="about_licenses_desc">Media3 · Room · Retrofit · Coil · Coroutines · Material</string>
+
+    <!-- Languages -->
+    <string name="lang_hindi">हिन्दी</string>
+    <string name="lang_english">English</string>
+    <string name="lang_bhojpuri">Bhojpuri</string>
+    <string name="lang_punjabi">Punjabi</string>
+    <string name="lang_haryanvi">Haryanvi</string>
+    <string name="lang_tamil">Tamil</string>
+    <string name="lang_telugu">Telugu</string>
+    <string name="lang_malayalam">Malayalam</string>
+    <string name="lang_kannada">Kannada</string>
+    <string name="lang_bengali">Bengali</string>
+    <string name="lang_gujarati">Gujarati</string>
+    <string name="lang_marathi">Marathi</string>
+
+    <!-- Countries -->
+    <string name="country_india">India</string>
+    <string name="country_us">United States</string>
+    <string name="country_uk">United Kingdom</string>
+    <string name="country_canada">Canada</string>
+    <string name="country_uae">UAE</string>
+    <string name="country_australia">Australia</string>
+    <string name="country_singapore">Singapore</string>
+</resources>

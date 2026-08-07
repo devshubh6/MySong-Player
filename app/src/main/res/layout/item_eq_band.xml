@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/eq_band_item"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
+    android:paddingStart="22dp"
+    android:paddingEnd="22dp">
+
+    <TextView
+        android:id="@+id/tv_band_label"
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        android:textColor="@color/text_secondary"
+        android:textSize="11sp" />
+
+    <androidx.appcompat.widget.AppCompatSeekBar
+        android:id="@+id/sb_band"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_weight="1"
+        android:max="1000"
+        android:progressDrawable="@drawable/bg_seekbar"
+        android:thumb="@drawable/bg_seek_thumb" />
+
+    <TextView
+        android:id="@+id/tv_band_value"
+        android:layout_width="34dp"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:textColor="@color/accent"
+        android:textSize="12sp"
+        android:textStyle="bold" />
+</LinearLayout>

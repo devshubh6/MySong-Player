@@ -1,0 +1,52 @@
+package com.shubh.song.util
+
+object Constants {
+    const val API_BASE = "https://mymusic9889.vercel.app/"
+
+    const val PREFS_FILE = "mysong_prefs"
+    const val PREFS_MASTER_KEY = "mysong_master_key"
+
+    const val KEY_THEME = "theme_mode"          // dark | light | system
+    const val KEY_ACCENT = "accent_color"       // green | purple | pink | cyan | amber | red
+    const val KEY_ACCENT_HEX = "accent_hex"     // "#1DB954" — persisted accent color code
+    const val KEY_QUALITY = "stream_quality"    // 96 | 160 | 320
+    const val KEY_LANGUAGES = "languages"       // Set<String>
+    const val KEY_COUNTRY = "country"
+    const val KEY_EQ_ENABLED = "eq_enabled"     // master Equalizer switch
+    const val KEY_RECENT_SEARCHES = "recent_searches"
+    const val KEY_AUDIO_MODE = "audio_mode"     // normal | slowed_reverb | nightcore
+    const val KEY_CROSSFADE_SEC = "crossfade_seconds" // 0..12
+    const val KEY_AUTO_MIX = "auto_mix"         // append similar tracks at queue end
+    const val KEY_AMOLED = "amoled_black"       // pure #000000 UI mode
+
+    const val AUDIO_MODE_NORMAL = "normal"
+    const val AUDIO_MODE_SLOWED = "slowed"
+    const val AUDIO_MODE_NIGHTCORE = "nightcore"
+
+    const val DEFAULT_THEME = "dark"
+    const val DEFAULT_ACCENT = "green"
+    const val DEFAULT_ACCENT_HEX = "#1DB954"
+    const val DEFAULT_QUALITY = "160"
+    const val DEFAULT_COUNTRY = "India"
+
+    const val QUALITY_LOW = "96"
+    const val QUALITY_MEDIUM = "160"
+    const val QUALITY_HIGH = "320"
+
+    const val DOWNLOAD_DIR_NAME = "Mysong"
+    const val CACHE_DIR_NAME = "stream_cache"
+
+    val LANGUAGES = listOf(
+        "hindi", "english", "bhojpuri", "punjabi", "haryanvi",
+        "tamil", "telugu", "malayalam", "kannada", "bengali",
+        "gujarati", "marathi"
+    )
+
+    val COUNTRIES = listOf(
+        "India", "United States", "United Kingdom", "Canada",
+        "UAE", "Australia", "Singapore"
+    )
+
+    /** JioSaavn stream qualities returned by the API. */
+    val STREAM_QUALITIES = listOf("12kbps", "48kbps", "96kbps", "160kbps", "320kbps")
+}
