@@ -35,7 +35,7 @@ import com.shubh.song.media.PlaybackManager
 import com.shubh.song.ui.player.PlayerActivity
 import com.shubh.song.ui.search.SearchFragment
 import com.shubh.song.ui.sheets.LangFilterSheet
-import com.shubh.song.util.ThemeUtils
+import com.shubh.song.util.ThemeManager
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -68,6 +68,7 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        ThemeManager.applyAppBackground(binding.root)
 
         setupSkeleton()
         setupForYou()
@@ -121,7 +122,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupRefresh() {
-        binding.swipeFeed.setColorSchemeColors(ThemeUtils.accentColor(requireContext()))
+        binding.swipeFeed.setColorSchemeColors(ThemeManager.accentColor())
         binding.swipeFeed.setOnRefreshListener {
             viewModel.refresh()
         }
@@ -172,9 +173,9 @@ class HomeFragment : Fragment() {
 
     /** Applies the subtle accent header glow + swipe colours. */
     private fun applyAccentTints() {
-        val accent = ThemeUtils.accentColor(requireContext())
+        val accent = ThemeManager.accentColor()
         binding.swipeFeed.setColorSchemeColors(accent)
-        ThemeUtils.applyHeaderGradient(binding.homeHeader)
+        ThemeManager.applyHeaderGradient(binding.homeHeader)
         forYouProgress?.indeterminateTintList =
             android.content.res.ColorStateList.valueOf(accent)
     }
@@ -301,7 +302,7 @@ class HomeFragment : Fragment() {
 
     private fun addForYouRow(container: ViewGroup, title: String) {
         val rowBinding = ItemFeedRowBinding.inflate(layoutInflater, container, false)
-        rowBinding.tvRowTitle.text = title
+        rowBinding.tvRowTitle.text = com.shubh.song.util.Ui.html(title)
         val lm = LinearLayoutManager(requireContext())
         lm.isItemPrefetchEnabled = true
         rowBinding.rvRow.layoutManager = lm
@@ -317,7 +318,7 @@ class HomeFragment : Fragment() {
                 gravity = android.view.Gravity.CENTER
             }
             indeterminateTintList = android.content.res.ColorStateList.valueOf(
-                ThemeUtils.accentColor(requireContext())
+                ThemeManager.accentColor()
             )
             visibility = View.GONE
         }
@@ -338,7 +339,7 @@ class HomeFragment : Fragment() {
     ) {
         if (songs.isEmpty() && albums.isEmpty() && artists.isEmpty() && playlists.isEmpty()) return
         val rowBinding = ItemFeedRowBinding.inflate(layoutInflater, container, false)
-        rowBinding.tvRowTitle.text = title
+        rowBinding.tvRowTitle.text = com.shubh.song.util.Ui.html(title)
 
         val rowList = rowBinding.rvRow
         rowList.layoutManager =

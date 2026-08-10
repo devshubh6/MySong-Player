@@ -11,10 +11,12 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.chip.Chip
+import com.google.android.material.shape.ShapeAppearanceModel
 import com.shubh.song.data.model.Song
 import com.shubh.song.databinding.SheetQueueBinding
 import com.shubh.song.media.PlaybackManager
 import com.shubh.song.ui.common.QueueAdapter
+import com.shubh.song.util.LiquidGlass
 import com.shubh.song.util.Ui
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -33,6 +35,11 @@ class QueueSheet : BottomSheetDialogFragment() {
 
     private var fullQueue: List<Song> = emptyList()
     private var activeFilter: String = ""
+
+    override fun onStart() {
+        super.onStart()
+        LiquidGlass.apply(dialog)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -64,7 +71,7 @@ class QueueSheet : BottomSheetDialogFragment() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 PlaybackManager.uiState.collectLatest { state ->
                     fullQueue = state.queue
-                    val (shown, real) = filter(activeFilter)
+                    val (shown, _) = filter(activeFilter)
                     adapter?.setCurrentId(state.currentSong?.id)
                     adapter?.submit(shown)
                     binding.tvQueueCount.text = shown.size.toString()
@@ -83,7 +90,9 @@ class QueueSheet : BottomSheetDialogFragment() {
                 text = tag
                 isCheckable = true
                 isChecked = tag == activeFilter
-                chipCornerRadius = 18 * resources.displayMetrics.density
+                shapeAppearanceModel = ShapeAppearanceModel.builder()
+                    .setAllCornerSizes(18 * resources.displayMetrics.density)
+                    .build()
                 chipStrokeWidth = 0f
                 chipBackgroundColor = ColorStateList(
                     arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()),

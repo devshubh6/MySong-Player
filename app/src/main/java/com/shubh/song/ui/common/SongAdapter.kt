@@ -46,6 +46,7 @@ class SongAdapter(
         fun bind(song: Song) {
             binding.tvTitle.text = com.shubh.song.util.Ui.html(song.name)
             binding.tvSubtitle.text = listOf(song.artists, song.album)
+                .map { com.shubh.song.util.Ui.html(it) }
                 .filter { it.isNotBlank() }
                 .joinToString(" • ")
             binding.ivArt.load(song.imageUrl) {
@@ -71,10 +72,10 @@ class SongAdapter(
                 binding.tvSubtitle.isClickable = true
                 binding.tvSubtitle.isFocusable = true
                 binding.tvSubtitle.setTextColor(
-                    com.shubh.song.util.ThemeUtils.accentColor(binding.root.context)
+                    com.shubh.song.util.ThemeManager.accentColor()
                 )
                 val callback = onArtistClick
-                binding.tvSubtitle.setOnClickListener { callback?.invoke(song) }
+                binding.tvSubtitle.setOnClickListener { callback.invoke(song) }
             } else {
                 binding.tvSubtitle.isClickable = false
                 binding.tvSubtitle.isFocusable = false

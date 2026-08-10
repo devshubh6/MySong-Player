@@ -19,7 +19,7 @@ object CrashLogger {
 
     const val CRASH_FILE = "crash.log"
 
-    private val defaultHandler: Thread.UncaughtExceptionHandler =
+    private val defaultHandler: Thread.UncaughtExceptionHandler? =
         Thread.getDefaultUncaughtExceptionHandler()
 
     fun install(context: Context) {
@@ -29,7 +29,7 @@ object CrashLogger {
                 logCrash(appContext, thread, throwable)
             } catch (_: Exception) {
             }
-            defaultHandler.uncaughtException(thread, throwable)
+            defaultHandler?.uncaughtException(thread, throwable)
         }
     }
 

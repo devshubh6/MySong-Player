@@ -1,13 +1,13 @@
 package com.shubh.song.ui.player
 
 import android.content.Context
+import android.content.Intent
 import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.widget.FrameLayout
-import androidx.core.view.GestureDetectorCompat
 import coil.load
 import com.shubh.song.R
 import com.shubh.song.databinding.ItemMiniPlayerBinding
@@ -36,7 +36,7 @@ class MiniPlayerView @JvmOverloads constructor(
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
-    private val gestureDetector = GestureDetectorCompat(
+    private val gestureDetector = GestureDetector(
         context,
         object : GestureDetector.SimpleOnGestureListener() {
             override fun onFling(
@@ -59,8 +59,8 @@ class MiniPlayerView @JvmOverloads constructor(
         super.onAttachedToWindow()
         scope.launch {
             PlaybackManager.uiState.collectLatest { state ->
-                binding.miniTitle.text = state.currentSong?.name ?: ""
-                binding.miniArtist.text = state.currentSong?.artists ?: ""
+                binding.miniTitle.text = Ui.html(state.currentSong?.name ?: "")
+                binding.miniArtist.text = Ui.html(state.currentSong?.artists ?: "")
                 binding.miniPlay.setImageResource(
                     if (state.isPlaying) R.drawable.ic_pause else R.drawable.ic_play
                 )
@@ -84,7 +84,7 @@ class MiniPlayerView @JvmOverloads constructor(
     init {
         binding.miniPlay.setOnClickListener { PlaybackManager.togglePlayPause() }
         binding.miniNext.setOnClickListener { PlaybackManager.playNext() }
-        binding.miniPlayerRoot.setOnClickListener { PlayerActivity.open(context) }
+        binding.miniPlayerRoot.setOnClickListener { runPlayer(context) }
         binding.miniPlay.colorFilter =
             android.graphics.PorterDuffColorFilter(
                 Ui.accentColor(context),
@@ -95,5 +95,29 @@ class MiniPlayerView @JvmOverloads constructor(
             false
         }
         isClickable = true
+    }
+
+    /**
+     * Crash-proof expansion: never lets a stale/finishing activity context,
+     * a mid-transition FragmentManager/ActivityManager rejection, or any other
+     * runtime fault escape. Falls back to a NEW_TASK launch before giving up
+     * silently.
+     */
+    private fun runPlayer(context: Context) {
+        try {
+            if (context is android.app.Activity && (context.isFinishing || context.isDestroyed)) return
+            val manager = (context as? androidx.fragment.app.FragmentActivity)
+                ?.supportFragmentManager
+            if (manager != null && manager.isStateSaved) return
+            PlayerActivity.open(context)
+        } catch (t: Throwable) {
+            try {
+                val fallback = Intent(context, PlayerActivity::class.java)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                context.startActivity(fallback)
+            } catch (t2: Throwable) {
+                // Both paths are blocked; the transition must never crash.
+            }
+        }
     }
 }

@@ -138,7 +138,7 @@ class MusicRepository(private val api: JioSaavnApi = ApiClient.api) {
         URLEncoder.encode(value, "UTF-8")
 
     /** Builds the five home-carousels from curated searches (no dedicated home endpoint). */
-    suspend fun homeFeed(languages: Set<String>, country: String): FeedData = coroutineScope {
+    suspend fun homeFeed(languages: Set<String>): FeedData = coroutineScope {
         val usedLangs = languages.take(3)
 
         val trending = async { searchTrending(usedLangs) }

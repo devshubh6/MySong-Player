@@ -12,6 +12,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.shubh.song.R
 import com.shubh.song.databinding.SheetEqualizerBinding
 import com.shubh.song.media.EqualizerController
+import com.shubh.song.util.LiquidGlass
 import com.shubh.song.ui.common.EqBandAdapter
 import com.shubh.song.ui.common.EqPresetAdapter
 import kotlinx.coroutines.launch
@@ -27,6 +28,11 @@ class EqSheet : BottomSheetDialogFragment() {
         onSelect = { EqualizerController.applyPreset(it) }
     )
     private var syncingSwitch = false
+
+    override fun onStart() {
+        super.onStart()
+        LiquidGlass.apply(dialog)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,

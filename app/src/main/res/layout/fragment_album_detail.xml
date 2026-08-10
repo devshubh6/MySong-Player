@@ -90,7 +90,7 @@
         android:textColor="@color/text_on_accent"
         android:textSize="14sp"
         android:textStyle="bold"
-        app:backgroundTint="@color/accent"
+        app:backgroundTint="?attr/colorPrimary"
         app:cornerRadius="24dp"
         app:elevation="0dp"
         app:icon="@drawable/ic_play"

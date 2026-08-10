@@ -1,3 +1,7 @@
+// Virtualizer is flagged deprecated by newer SDK stubs but remains the only
+// public API for 3D audio; usage is intentional and kept working.
+@file:Suppress("DEPRECATION")
+
 package com.shubh.song.media
 
 import android.media.audiofx.BassBoost
@@ -63,7 +67,6 @@ object EqualizerController {
         try {
             val eq = Equalizer(0, audioSessionId)
             val bands = eq.numberOfBands.toInt().coerceIn(1, 10)
-            val range = eq.bandLevelRange
             currentLevels = List(bands) { 0 }
             currentPreset = "flat"
             currentBass = 0

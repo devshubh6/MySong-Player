@@ -17,6 +17,7 @@ import com.shubh.song.databinding.SheetPlaylistPickerBinding
 import com.shubh.song.ui.common.AppViewModelFactory
 import com.shubh.song.ui.common.PlaylistPickerAdapter
 import com.shubh.song.ui.player.PlayerViewModel
+import com.shubh.song.util.LiquidGlass
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -27,6 +28,11 @@ class PlaylistPickerSheet : BottomSheetDialogFragment() {
 
     private val adapter = PlaylistPickerAdapter { playlist ->
         addTo(playlist)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        LiquidGlass.apply(dialog)
     }
 
     override fun onCreateView(

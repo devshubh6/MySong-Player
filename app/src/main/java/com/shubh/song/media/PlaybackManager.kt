@@ -19,6 +19,7 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import com.shubh.song.MySongApp
 import com.shubh.song.data.model.Song
+import com.shubh.song.data.repository.StatsRepository
 import com.shubh.song.util.Constants
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -56,6 +57,7 @@ object PlaybackManager {
         val isBuffering: Boolean = false,
         val positionMs: Long = 0L,
         val durationMs: Long = 0L,
+        val bufferedPositionMs: Long = 0L,
         val speed: Float = 1f,
         val isOffline: Boolean = false,
         val shuffleEnabled: Boolean = false,
@@ -85,6 +87,13 @@ object PlaybackManager {
     private var fadeOutRunnable: Runnable? = null
     private var fadeJob: Job? = null
 
+    // ---- Listening stats ----
+    private var statsSong: Song? = null
+    private var statsElapsedMs = 0L
+    private var statsFlushedMs = 0L
+    private var statsPlayCounted = false
+    private var lastPositionMs = -1L
+
     fun init(context: Context) {
         if (::player.isInitialized) return
         appContext = context.applicationContext
@@ -109,37 +118,58 @@ object PlaybackManager {
 
         player.addListener(object : Player.Listener {
             override fun onIsPlayingChanged(isPlaying: Boolean) {
-                if (isPlaying) {
-                    MusicService.start(appContext ?: MySongApp.instance)
+                try {
+                    if (isPlaying) {
+                        MusicService.start(appContext ?: MySongApp.instance)
+                    } else {
+                        commitStats()
+                    }
+                } catch (t: Throwable) {
+                    // Listener faults must never crash playback.
                 }
                 pushState()
             }
 
             override fun onPlaybackStateChanged(playbackState: Int) {
-                pushState()
-                if (playbackState == Player.STATE_READY) {
-                    val sessionId = player.audioSessionId
-                    if (sessionId > 0 && sessionId != lastSessionId) {
-                        lastSessionId = sessionId
-                        EqualizerController.attach(sessionId)
-                        attachReverb(sessionId)
+                try {
+                    if (playbackState == Player.STATE_READY) {
+                        val sessionId = player.audioSessionId
+                        if (sessionId > 0 && sessionId != lastSessionId) {
+                            lastSessionId = sessionId
+                            EqualizerController.attach(sessionId)
+                            LoudnessNormalizer.attach(sessionId)
+                            attachReverb(sessionId)
+                        }
+                        scheduleCrossfadeOut()
+                    } else if (playbackState == Player.STATE_ENDED) {
+                        commitStats()
+                        maybeAutoMix()
                     }
-                    scheduleCrossfadeOut()
-                } else if (playbackState == Player.STATE_ENDED) {
-                    maybeAutoMix()
+                } catch (t: Throwable) {
+                    // Listener faults must never crash playback.
                 }
+                pushState()
             }
 
             override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
-                onTrackChanged()
-                fadeInOnTransition()
-                scheduleCrossfadeOut()
+                try {
+                    commitStats()
+                    onTrackChanged()
+                    fadeInOnTransition()
+                    scheduleCrossfadeOut()
+                } catch (t: Throwable) {
+                    // Listener faults must never crash playback.
+                }
             }
 
             override fun onPlayerError(error: PlaybackException) {
-                scope.launch {
-                    delay(600)
-                    playNext()
+                try {
+                    scope.launch {
+                        delay(600)
+                        playNext()
+                    }
+                } catch (t: Throwable) {
+                    // Error recovery is best-effort.
                 }
             }
         })
@@ -156,29 +186,35 @@ object PlaybackManager {
         tickerJob = scope.launch {
             while (true) {
                 pushState()
+                statsTick()
                 delay(500)
             }
         }
     }
 
     private fun pushState() {
-        val index = player.currentMediaItemIndex
-        val current = if (index in queue.indices) queue[index] else null
-        _uiState.value = PlayerUiState(
-            currentSong = current,
-            queue = queue,
-            index = index,
-            isPlaying = player.isPlaying,
-            isBuffering = player.playbackState == Player.STATE_BUFFERING,
-            positionMs = player.currentPosition.coerceAtLeast(0L),
-            durationMs = player.duration.coerceAtLeast(0L),
-            speed = player.playbackParameters.speed,
-            isOffline = currentUriIsLocal,
-            shuffleEnabled = player.shuffleModeEnabled,
-            repeatMode = player.repeatMode,
-            audioMode = lastAudioMode,
-            crossfadeSec = MySongApp.instance.settingsRepository.prefs.crossfadeSec
-        )
+        try {
+            val index = player.currentMediaItemIndex
+            val current = if (index in queue.indices) queue[index] else null
+            _uiState.value = PlayerUiState(
+                currentSong = current,
+                queue = queue,
+                index = index,
+                isPlaying = player.isPlaying,
+                isBuffering = player.playbackState == Player.STATE_BUFFERING,
+                positionMs = player.currentPosition.coerceAtLeast(0L),
+                durationMs = player.duration.coerceAtLeast(0L),
+                bufferedPositionMs = player.bufferedPosition.coerceAtLeast(0L),
+                speed = player.playbackParameters.speed,
+                isOffline = currentUriIsLocal,
+                shuffleEnabled = player.shuffleModeEnabled,
+                repeatMode = player.repeatMode,
+                audioMode = lastAudioMode,
+                crossfadeSec = MySongApp.instance.settingsRepository.prefs.crossfadeSec
+            )
+        } catch (t: Throwable) {
+            // UI-state sync is best-effort.
+        }
     }
 
     private fun onTrackChanged() {
@@ -186,17 +222,24 @@ object PlaybackManager {
         val index = player.currentMediaItemIndex
         val current = if (index in queue.indices) queue[index] else null
         if (current == null) return
+        startStatsSession(current)
 
         currentUriIsLocal = false
         scope.launch {
-            resolveUri(current).let { (uri, isLocal) ->
-                currentUriIsLocal = isLocal
-                val mediaItem = buildMediaItem(current, uri)
-                if (player.currentMediaItemIndex == index) {
-                    if (player.currentMediaItem?.mediaId != current.id || isLocal) {
-                        player.replaceMediaItem(index, mediaItem)
+            try {
+                resolveUri(current).let { (uri, isLocal) ->
+                    currentUriIsLocal = isLocal
+                    val mediaItem = buildMediaItem(current, uri)
+                    if (index in 0 until player.mediaItemCount &&
+                        player.currentMediaItemIndex == index
+                    ) {
+                        if (player.currentMediaItem?.mediaId != current.id || isLocal) {
+                            player.replaceMediaItem(index, mediaItem)
+                        }
                     }
                 }
+            } catch (t: Throwable) {
+                // URI resolution / item replacement is best-effort.
             }
         }
 
@@ -212,6 +255,41 @@ object PlaybackManager {
         pushState()
     }
 
+    // ---- Listening stats (incremental, crash-safe) ----
+
+    private fun startStatsSession(song: Song) {
+        statsSong = song
+        statsElapsedMs = 0L
+        statsFlushedMs = 0L
+        statsPlayCounted = false
+        lastPositionMs = player.currentPosition.coerceAtLeast(0L)
+    }
+
+    /** Called every UI tick: accumulates real play time + periodic flush. */
+    private fun statsTick() {
+        if (statsSong == null) return
+        if (statsSong?.id != _uiState.value.currentSong?.id) return
+        if (!player.isPlaying) return
+        val pos = player.currentPosition.coerceAtLeast(0L)
+        val delta = if (lastPositionMs >= 0L) (pos - lastPositionMs).coerceAtLeast(0L) else 0L
+        lastPositionMs = pos
+        if (delta <= 0L) return
+        statsElapsedMs += delta
+        if (statsElapsedMs >= MIN_PLAY_MS) statsPlayCounted = true
+        if (statsElapsedMs - statsFlushedMs >= PERIODIC_FLUSH_MS) commitStats()
+    }
+
+    /** Pushes buffered listening time + one "play" count into Room. */
+    private fun commitStats() {
+        val song = statsSong ?: return
+        val deltaMs = statsElapsedMs - statsFlushedMs
+        if (deltaMs <= 0L) return
+        val counted = statsPlayCounted
+        StatsRepository.record(song, deltaMs / 1000L, counted)
+        statsFlushedMs = statsElapsedMs
+        statsPlayCounted = false
+    }
+
     // ---- Public playback control ----
 
     fun playQueue(songs: List<Song>, startIndex: Int) {
@@ -224,6 +302,7 @@ object PlaybackManager {
                 currentUriIsLocal = isLocal
                 buildMediaItem(song, uri)
             }
+            startStatsSession(songs[safeIndex])
             player.setMediaItems(items, safeIndex, 0L)
             player.prepare()
             player.play()
@@ -253,40 +332,66 @@ object PlaybackManager {
     }
 
     fun togglePlayPause() {
-        if (player.isPlaying) player.pause() else player.play()
+        try {
+            if (player.isPlaying) player.pause() else player.play()
+        } catch (t: Throwable) {
+            // Controls are best-effort; never crash.
+        }
     }
 
     fun play() {
-        player.play()
+        try {
+            player.play()
+        } catch (t: Throwable) {
+        }
     }
 
     fun pause() {
-        player.pause()
+        try {
+            player.pause()
+        } catch (t: Throwable) {
+        }
     }
 
     fun playNext() {
         if (queue.isEmpty()) return
-        if (player.hasNextMediaItem()) player.seekToNextMediaItem() else player.seekTo(0, 0L)
+        try {
+            if (player.hasNextMediaItem()) player.seekToNextMediaItem() else player.seekTo(0, 0L)
+        } catch (t: Throwable) {
+        }
     }
 
     fun playPrev() {
         if (queue.isEmpty()) return
-        if (player.hasPreviousMediaItem()) player.seekToPreviousMediaItem()
+        try {
+            if (player.hasPreviousMediaItem()) player.seekToPreviousMediaItem()
+        } catch (t: Throwable) {
+        }
     }
 
     fun seekTo(positionMs: Long) {
-        player.seekTo(positionMs.coerceAtLeast(0L))
+        try {
+            player.seekTo(positionMs.coerceAtLeast(0L))
+        } catch (t: Throwable) {
+            // Scrubbing is best-effort; never crash playback.
+        }
     }
 
     fun seekToIndex(index: Int) {
         if (queue.isEmpty()) return
-        val safe = index.coerceIn(0, queue.size - 1)
-        if (player.currentMediaItemIndex == safe && player.playbackState != Player.STATE_IDLE) {
+        try {
+            val count = player.mediaItemCount
+            if (count <= 0) return
+            val safe = index.coerceIn(0, kotlin.math.min(queue.size, count) - 1)
+            if (player.currentMediaItemIndex == safe && player.playbackState != Player.STATE_IDLE) {
+                player.play()
+                return
+            }
+            player.seekTo(safe, 0L)
             player.play()
-            return
+        } catch (t: Throwable) {
+            // Track navigation is best-effort; never crash playback.
         }
-        player.seekTo(safe, 0L)
-        player.play()
         pushState()
     }
 
@@ -318,10 +423,15 @@ object PlaybackManager {
     }
 
     fun audioModeLabel(): String = when (lastAudioMode) {
-        AudioMode.NORMAL -> "1x"
-        AudioMode.SLOWED_REVERB -> "Slowed"
-        AudioMode.NIGHTCORE -> "Nightcore"
+        PlaybackManager.AudioMode.NORMAL -> "1x"
+        PlaybackManager.AudioMode.SLOWED_REVERB -> "Slowed"
+        PlaybackManager.AudioMode.NIGHTCORE -> "Nightcore"
     }
+
+    /** A listen session counts as a "play" only after >= 5 seconds. */
+    private const val MIN_PLAY_MS = 5_000L
+    /** Flush to the DB at most every 45 s (keeps concurrent commits low). */
+    private const val PERIODIC_FLUSH_MS = 45_000L
 
     private fun parametersFor(mode: AudioMode) = when (mode) {
         AudioMode.NORMAL -> PlaybackParameters(1f, 1f)
@@ -463,8 +573,11 @@ object PlaybackManager {
                 val fresh = similar.filter { it.id != seed.id && it.id !in existing }.take(10)
                 if (fresh.isNotEmpty()) {
                     appendToQueue(fresh)
-                    player.seekTo(queue.lastIndex - fresh.size + 1, 0L)
-                    player.play()
+                    val target = kotlin.math.min(queue.size, player.mediaItemCount) - 1
+                    if (target >= 0) {
+                        player.seekTo(target, 0L)
+                        player.play()
+                    }
                 }
             } finally {
                 autoMixing = false

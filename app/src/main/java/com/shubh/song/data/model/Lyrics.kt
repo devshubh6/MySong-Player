@@ -48,8 +48,8 @@ data class Lyrics(
                 if (trimmed.isEmpty()) continue
                 val matcher = TIMESTAMP.matcher(trimmed)
                 if (matcher.find()) {
-                    val minutes = matcher.group(1).toIntOrNull() ?: 0
-                    val seconds = matcher.group(2).toIntOrNull() ?: 0
+                    val minutes = matcher.group(1)?.toIntOrNull() ?: 0
+                    val seconds = matcher.group(2)?.toIntOrNull() ?: 0
                     val fraction = matcher.group(3)?.let { ms ->
                         (ms + "000").take(3).toIntOrNull() ?: 0
                     } ?: 0

@@ -9,19 +9,27 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.shubh.song.MySongApp
+import com.shubh.song.R
 import com.shubh.song.data.model.Lyrics
 import com.shubh.song.data.model.Song
+import com.shubh.song.data.repository.LyricsRepository
 import com.shubh.song.databinding.SheetLyricsBinding
 import com.shubh.song.media.PlaybackManager
-import com.shubh.song.ui.common.LyricsAdapter
+import com.shubh.song.ui.karaoke.LyricsAdapter
+import com.shubh.song.util.LiquidGlass
 import com.shubh.song.util.Ui
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
+/**
+ * Synchronized "karaoke" lyrics sheet.
+ *
+ * Lyrics come from the multi-source [LyricsRepository] — JioSaavn's lyrics
+ * endpoint first, then LRC Lib for real-time synced `.lrc` timestamps that
+ * drive the auto-centered glowing line, and finally the classic unavailable
+ * state. Always offline-safe.
+ */
 class LyricsSheet : BottomSheetDialogFragment() {
 
     private lateinit var binding: SheetLyricsBinding
@@ -29,7 +37,12 @@ class LyricsSheet : BottomSheetDialogFragment() {
     private var loadingJob: Job? = null
     private var lastSongId: String? = null
     private var lyrics: Lyrics? = null
+    private var karaokeMode = false
     private var lastActive = -1
+    override fun onStart() {
+        super.onStart()
+        LiquidGlass.apply(dialog)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,9 +55,8 @@ class LyricsSheet : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         binding.btnLyricsClose.setOnClickListener { dismiss() }
-        binding.tvLyricsTitle.text = getString(com.shubh.song.R.string.lyrics)
+        binding.tvLyricsTitle.text = getString(R.string.lyrics)
 
         binding.rvLyrics.layoutManager = LinearLayoutManager(requireContext())
         adapter = LyricsAdapter(Ui.accentColor(requireContext()))
@@ -56,43 +68,53 @@ class LyricsSheet : BottomSheetDialogFragment() {
                     val song = state.currentSong
                     if (song == null) {
                         showUnavailable()
-                    } else {
-                        binding.tvLyricsSong.text = "${song.name} — ${song.artists}"
-                        if (song.id != lastSongId) loadLyrics(song)
-                        updateActiveLine(state.positionMs)
+                        return@collectLatest
                     }
+                    binding.tvLyricsSong.text = Ui.html("${song.name} — ${song.artists}")
+                    if (song.id != lastSongId) loadLyrics(song)
+                    updateActiveLine(state.positionMs)
                 }
             }
         }
     }
 
+    // ---- Lyrics loading: LRC Lib (karaoke) → static fallbacks ----
+
     private fun loadLyrics(song: Song) {
         lastSongId = song.id
         lyrics = null
         lastActive = -1
+        karaokeMode = false
         adapter?.submit(emptyList())
         showLoading()
         loadingJob?.cancel()
         loadingJob = viewLifecycleOwner.lifecycleScope.launch {
-            val result = withContext(Dispatchers.IO) {
-                MySongApp.instance.musicRepository.fetchLyrics(song)
-            }
+            val result = fetchBestLyrics(song)
             if (song.id != lastSongId) return@launch
-            lyrics = result
             if (result == null) showUnavailable() else showLyrics(result)
         }
     }
+
+    private suspend fun fetchBestLyrics(song: Song): Lyrics? =
+        runCatching { LyricsRepository.fetch(song) }.getOrNull()
 
     private fun showLyrics(result: Lyrics) {
         binding.progressLyrics.visibility = View.GONE
         binding.tvLyricsEmpty.visibility = View.GONE
         binding.rvLyrics.visibility = View.VISIBLE
+
         val copyright = result.copyright
         binding.tvLyricsCopyright.visibility =
             if (copyright.isNullOrBlank()) View.GONE else View.VISIBLE
         binding.tvLyricsCopyright.text = copyright.orEmpty()
+
+        lyrics = result
+        karaokeMode = result.synced
         adapter?.submit(result.lines)
         lastActive = -1
+        binding.tvKaraokeBadge.visibility =
+            if (karaokeMode) View.VISIBLE else View.GONE
+        binding.tvLyricsTitle.text = getString(R.string.lyrics)
     }
 
     private fun showUnavailable() {
@@ -101,27 +123,27 @@ class LyricsSheet : BottomSheetDialogFragment() {
         binding.rvLyrics.visibility = View.GONE
         binding.tvLyricsCopyright.visibility = View.GONE
         binding.tvLyricsEmpty.visibility = View.VISIBLE
+        binding.tvKaraokeBadge.visibility = View.GONE
     }
 
     private fun showLoading() {
         binding.tvLyricsEmpty.visibility = View.GONE
         binding.rvLyrics.visibility = View.GONE
         binding.tvLyricsCopyright.visibility = View.GONE
+        binding.tvKaraokeBadge.visibility = View.GONE
         binding.progressLyrics.visibility = View.VISIBLE
     }
 
+    // ---- Karaoke sync ----
+
     private fun updateActiveLine(positionMs: Long) {
-        val activeLyrics = lyrics ?: return
-        val index = activeLyrics.lineIndexAt(positionMs)
+        val lyrics = lyrics ?: return
+        if (!lyrics.synced) return
+        val index = lyrics.lineIndexAt(positionMs)
         if (index == lastActive) return
         lastActive = index
         adapter?.setActive(index)
-        if (index >= 0) {
-            val manager = binding.rvLyrics.layoutManager as? LinearLayoutManager ?: return
-            binding.rvLyrics.post {
-                manager.scrollToPositionWithOffset(index, binding.rvLyrics.height / 3)
-            }
-        }
+        adapter?.scrollToActive(binding.rvLyrics, index)
     }
 
     override fun onDestroyView() {

@@ -57,7 +57,7 @@ object Ui {
         val totalSec = ms / 1000
         val m = totalSec / 60
         val s = totalSec % 60
-        return String.format(Locale.US, "%d:%02d", m, s)
+        return String.format(Locale.US, "%02d:%02d", m, s)
     }
 
     fun formatBytes(bytes: Long): String {

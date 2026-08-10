@@ -5,9 +5,11 @@ import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.view.View
+import android.view.Window
 import android.widget.SeekBar
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
+import androidx.core.view.WindowInsetsControllerCompat
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.shubh.song.MySongApp
 import com.shubh.song.R
@@ -22,9 +24,27 @@ import com.shubh.song.R
  * blending over the surface colour at full opacity instead of using
  * semi-transparent tints.
  */
-object ThemeUtils {
+object ThemeManager {
 
     // ---- Accent lookup ----
+
+    /**
+     * Dynamically toggles the status / navigation bar icon contrast based on
+     * the current surface luminance: dark icons on light backgrounds, light
+     * icons on dark ones. Self-heals after every theme/accent switch.
+     */
+    fun applyStatusBarIcons(window: Window) {
+        try {
+            val context = window.context
+            val surface = ContextCompat.getColor(context, R.color.bg_primary)
+            val lightIcons = ColorUtils.calculateLuminance(surface) > 0.5
+            val controller = WindowInsetsControllerCompat(window, window.decorView)
+            controller.isAppearanceLightStatusBars = lightIcons
+            controller.isAppearanceLightNavigationBars = lightIcons
+        } catch (t: Throwable) {
+            // System bars are polish-only; never crash for a tint.
+        }
+    }
 
     fun accentHex(name: String): String = when (name) {
         "purple" -> "#A855F7"
@@ -35,17 +55,17 @@ object ThemeUtils {
         else -> "#1DB954"
     }
 
-    fun accentName(context: Context): String =
+    fun accentName(): String =
         MySongApp.instance.settingsRepository.accent
 
-    fun accentColor(context: Context): Int {
+    fun accentColor(): Int {
         val hex = MySongApp.instance.settingsRepository.prefs.accentHex
             .takeIf { it.isNotBlank() }
-            ?: accentHex(accentName(context))
+            ?: accentHex(accentName())
         return try {
             Color.parseColor(hex)
         } catch (e: IllegalArgumentException) {
-            Color.parseColor(accentHex(accentName(context)))
+            Color.parseColor(accentHex(accentName()))
         }
     }
 
@@ -54,12 +74,34 @@ object ThemeUtils {
         (accent and 0x00FFFFFF) or ((alphaPercent * 255 / 100).coerceIn(0, 255) shl 24)
 
     /** Readable text colour that stays sharp over the accent surface. */
-    fun onAccentText(context: Context): Int {
-        val accent = accentColor(context)
+    fun onAccentText(): Int {
+        val accent = accentColor()
         return if (ColorUtils.calculateLuminance(accent) > 0.5) Color.BLACK else Color.WHITE
     }
 
     // ---- Surfaces ----
+
+    /**
+     * App-wide screen background: the base surface (light or dark) blended
+     * 12% towards the selected accent, full opacity so text contrast never
+     * drops. This is the soft tint (soft pink/green/purple, ...) applied to
+     * Home / Library / Search / Settings. Full-screen surfaces like the
+     * player keep their own artwork backdrop and never use this.
+     */
+    fun appBackground(context: Context): Int = ColorUtils.blendARGB(
+        ContextCompat.getColor(context, R.color.bg_primary),
+        accentColor(),
+        0.12f
+    )
+
+    /** Applies the soft accent-tinted screen background to a fragment root. */
+    fun applyAppBackground(view: View) {
+        try {
+            view.setBackgroundColor(appBackground(view.context))
+        } catch (t: Throwable) {
+            // Background tint is cosmetic; never crash a screen.
+        }
+    }
 
     /**
      * A subtle accent-tinted card fill: the surface colour (white glass) is
@@ -69,7 +111,7 @@ object ThemeUtils {
     fun cardFill(context: Context, fraction: Float = 0.10f): Int =
         ColorUtils.blendARGB(
             ContextCompat.getColor(context, R.color.bg_surface),
-            accentColor(context),
+            accentColor(),
             fraction.coerceIn(0f, 1f)
         )
 
@@ -79,7 +121,7 @@ object ThemeUtils {
      */
     fun applyCardTint(view: View) {
         val context = view.context
-        val accent = accentColor(context)
+        val accent = accentColor()
         val drawable = GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
             cornerRadius = 18f * context.resources.displayMetrics.density
@@ -94,7 +136,7 @@ object ThemeUtils {
 
     /** Vertical top-glow gradient (accent fading out) for screen headers. */
     fun applyHeaderGradient(view: View, fromPercent: Int = 16, toPercent: Int = 0) {
-        val accent = accentColor(view.context)
+        val accent = accentColor()
         val drawable = GradientDrawable(
             GradientDrawable.Orientation.TOP_BOTTOM,
             intArrayOf(withAlpha(accent, fromPercent), withAlpha(accent, toPercent))
@@ -107,7 +149,7 @@ object ThemeUtils {
     /** Tints BottomNavigation icons, labels and the active-tab indicator pill. */
     fun tintBottomNav(nav: BottomNavigationView) {
         val context = nav.context
-        val accent = accentColor(context)
+        val accent = accentColor()
         val muted = ContextCompat.getColor(context, R.color.text_secondary)
         val checked = ColorStateList(
             arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()),
@@ -120,7 +162,7 @@ object ThemeUtils {
 
     /** Tints a seekbar: accent progress/thumb, subtle accent track. */
     fun tintSeekBar(seekBar: SeekBar) {
-        val accent = accentColor(seekBar.context)
+        val accent = accentColor()
         seekBar.progressTintList = ColorStateList.valueOf(accent)
         seekBar.thumbTintList = ColorStateList.valueOf(accent)
         seekBar.progressBackgroundTintList = ColorStateList.valueOf(withAlpha(accent, 28))
@@ -136,7 +178,7 @@ object ThemeUtils {
             setColor(cardFill(context, 0.08f))
             setStroke(
                 (1 * context.resources.displayMetrics.density).toInt(),
-                withAlpha(accentColor(context), 25)
+                withAlpha(accentColor(), 25)
             )
         }
         view.background = drawable
@@ -145,7 +187,7 @@ object ThemeUtils {
     /** Tile background for browse/search category cards (accent glow). */
     fun categoryTile(view: View) {
         val context = view.context
-        val accent = accentColor(context)
+        val accent = accentColor()
         val drawable = GradientDrawable(
             GradientDrawable.Orientation.TL_BR,
             intArrayOf(

@@ -32,7 +32,7 @@ import com.shubh.song.ui.common.AppViewModelFactory
 import com.shubh.song.ui.common.OverlayNav
 import com.shubh.song.ui.detail.ArtistDetailFragment
 import com.shubh.song.ui.player.PlayerActivity
-import com.shubh.song.util.ThemeUtils
+import com.shubh.song.util.ThemeManager
 import com.shubh.song.util.Ui
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -85,6 +85,7 @@ class SearchFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        ThemeManager.applyAppBackground(binding.root)
         (activity as? MainActivity)?.setSearchMode(true)
 
         // Push the panels above the soft keyboard so results never hide under
@@ -219,7 +220,7 @@ class SearchFragment : Fragment() {
             if (!state.loading && state.results.isEmpty()) View.VISIBLE else View.GONE
         binding.rvResults.visibility =
             if (!state.loading && state.results.isNotEmpty()) View.VISIBLE else View.GONE
-        resultsAdapter.submit(state.results, state.topArtist, ThemeUtils.accentColor(requireContext()))
+        resultsAdapter.submit(state.results, state.topArtist, ThemeManager.accentColor())
         resultsAdapter.setCurrentId(PlaybackManager.uiState.value.currentSong?.id)
     }
 
@@ -386,9 +387,9 @@ private class SearchCategoryAdapter(
         holder.binding.ivCategoryIcon.setImageResource(category.iconRes)
         holder.binding.ivCategoryIcon.imageTintList =
             android.content.res.ColorStateList.valueOf(
-                ThemeUtils.accentColor(holder.itemView.context)
+                ThemeManager.accentColor()
             )
-        ThemeUtils.categoryTile(holder.binding.root)
+        ThemeManager.categoryTile(holder.binding.root)
         holder.binding.root.setOnClickListener { onClick(category) }
     }
 
@@ -417,9 +418,9 @@ private class RecentChipAdapter(
     override fun onBindViewHolder(holder: Holder, position: Int) {
         val term = items[position]
         holder.binding.recentChip.text = Ui.html(term)
-        ThemeUtils.chipFill(holder.binding.recentChip)
+        ThemeManager.chipFill(holder.binding.recentChip)
         holder.binding.recentChip.setTextColor(
-            ThemeUtils.accentColor(holder.itemView.context)
+            ThemeManager.accentColor()
         )
         holder.binding.recentChip.setOnClickListener { onClick(term) }
     }

@@ -21,7 +21,7 @@ import com.shubh.song.databinding.FragmentLibraryBinding
 import com.shubh.song.ui.common.AppViewModelFactory
 import com.shubh.song.ui.common.PlaylistGridAdapter
 import com.shubh.song.ui.sheets.PlaylistSongsSheet
-import com.shubh.song.util.ThemeUtils
+import com.shubh.song.util.ThemeManager
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -45,6 +45,7 @@ class LibraryFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        ThemeManager.applyAppBackground(binding.root)
 
         binding.tvLibraryTitle.text = getString(R.string.library_title)
         applyAccentTints()
@@ -121,10 +122,10 @@ class LibraryFragment : Fragment() {
 
     /** Subtle accent tint on the folder cards + header glow. */
     private fun applyAccentTints() {
-        ThemeUtils.applyHeaderGradient(binding.libraryScroll)
-        ThemeUtils.applyCardTint(binding.folderDownloads.root)
-        ThemeUtils.applyCardTint(binding.folderLiked.root)
-        ThemeUtils.applyCardTint(binding.folderCached.root)
+        ThemeManager.applyHeaderGradient(binding.libraryScroll)
+        ThemeManager.applyCardTint(binding.folderDownloads.root)
+        ThemeManager.applyCardTint(binding.folderLiked.root)
+        ThemeManager.applyCardTint(binding.folderCached.root)
     }
 
     private fun showCreateDialog() {

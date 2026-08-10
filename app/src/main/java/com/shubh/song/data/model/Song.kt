@@ -26,7 +26,7 @@ data class Song(
             ?: downloadUrls.lastOrNull { !it.url.isNullOrBlank() }?.url
     }
 
-    fun bestImage(size: String = "500x500"): String =
+    fun bestImage(): String =
         imageUrl
 
     fun toEntity(): SongEntity =
@@ -70,7 +70,7 @@ data class Song(
                     .ifBlank { song.artists?.all.orEmpty().joinToString(", ") { it.name.orEmpty() } },
                 album = song.album?.name.orEmpty(),
                 imageUrl = imageUrl,
-                durationSec = (song.duration as? Number)?.toLong() ?: 0L,
+                durationSec = song.duration?.toLong() ?: 0L,
                 year = song.year.orEmpty(),
                 language = song.language.orEmpty(),
                 playCount = song.playCount?.toString().orEmpty(),

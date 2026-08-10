@@ -39,8 +39,8 @@ class SettingsViewModel : ViewModel() {
     private val _autoMix = MutableStateFlow(repository.autoMix)
     val autoMix: StateFlow<Boolean> = _autoMix
 
-    private val _amoled = MutableStateFlow(repository.amoledBlack)
-    val amoled: StateFlow<Boolean> = _amoled
+    private val _smartLoudness = MutableStateFlow(repository.smartLoudness)
+    val smartLoudness: StateFlow<Boolean> = _smartLoudness
 
     private val _audioMode = MutableStateFlow(
         com.shubh.song.media.PlaybackManager.uiState.value.audioMode
@@ -115,10 +115,11 @@ class SettingsViewModel : ViewModel() {
         _autoMix.value = enabled
     }
 
-    fun setAmoled(enabled: Boolean) {
-        if (enabled == _amoled.value) return
-        repository.setAmoledBlack(enabled)
-        _amoled.value = enabled
+    fun setSmartLoudness(enabled: Boolean) {
+        if (enabled == _smartLoudness.value) return
+        repository.setSmartLoudness(enabled)
+        _smartLoudness.value = enabled
+        com.shubh.song.media.LoudnessNormalizer.setEnabled(enabled)
     }
 
     fun setAudioMode(mode: com.shubh.song.media.PlaybackManager.AudioMode) {

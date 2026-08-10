@@ -95,8 +95,8 @@ class SettingsPrefs(context: Context) {
         get() = prefs.getBoolean(Constants.KEY_AUTO_MIX, true)
         set(value) = prefs.edit().putBoolean(Constants.KEY_AUTO_MIX, value).apply()
 
-    // ---- AMOLED pure-black UI ----
-    var amoledBlack: Boolean
-        get() = prefs.getBoolean(Constants.KEY_AMOLED, false)
-        set(value) = prefs.edit().putBoolean(Constants.KEY_AMOLED, value).apply()
+    // ---- Smart Volume (loudness normalization) ----
+    var smartLoudness: Boolean
+        get() = prefs.getBoolean(Constants.KEY_SMART_LOUDNESS, true) // Default ON
+        set(value) = prefs.edit().putBoolean(Constants.KEY_SMART_LOUDNESS, value).apply()
 }

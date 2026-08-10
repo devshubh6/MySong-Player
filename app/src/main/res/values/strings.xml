@@ -49,6 +49,7 @@
     <string name="lyrics">Lyrics</string>
     <string name="view_lyrics">View Lyrics</string>
     <string name="lyrics_unavailable">Lyrics are not available for this song</string>
+    <string name="lyrics_karaoke">Karaoke</string>
 
     <!-- Equalizer -->
     <string name="enable_equalizer">Enable Equalizer</string>
@@ -114,6 +115,9 @@
     <string name="added_to_playlist">Added to %1$s</string>
     <string name="queue_empty">Queue is empty</string>
     <string name="offline_playback">Playing from local storage (offline)</string>
+    <string name="skip_back_10">⏪ -10s</string>
+    <string name="skip_forward_10">+10s ⏩</string>
+    <string name="buffering">Buffering</string>
     <string name="now_playing">Now Playing</string>
 
     <!-- Search top artist card -->
@@ -132,10 +136,6 @@
     <string name="crossfade_value">%1$d s</string>
     <string name="auto_mix_setting">Auto-Mix similar songs</string>
     <string name="auto_mix_desc">Continuously appends similar tracks when the queue ends.</string>
-
-    <!-- AMOLED -->
-    <string name="amoled_setting">AMOLED Pure Black</string>
-    <string name="amoled_desc">Force true #000000 surfaces to save OLED power.</string>
 
     <!-- Car mode -->
     <string name="car_mode_setting">Car Mode</string>
@@ -162,12 +162,31 @@
 
     <!-- Settings -->
     <string name="settings_title">Settings</string>
+    <string name="settings_subtitle">Explore every corner of Mysong</string>
     <string name="section_appearance">Appearance</string>
+    <string name="settings_appearance">Appearance</string>
+    <string name="settings_appearance_desc">Theme &amp; accent color</string>
+    <string name="settings_audio">Audio &amp; Playback</string>
+    <string name="settings_audio_desc">Streaming quality, playback modes &amp; crossfade</string>
+    <string name="settings_content">Content &amp; Region</string>
+    <string name="settings_content_desc">Language filters &amp; country selection</string>
+    <string name="settings_storage">Storage &amp; Cache</string>
+    <string name="settings_storage_desc">Cache size &amp; clear cache</string>
+    <string name="settings_extras">Extras &amp; Tools</string>
+    <string name="settings_extras_desc">Stats, car mode &amp; playlist transfer</string>
+    <string name="settings_about">About &amp; Developer</string>
+    <string name="settings_about_desc">App version, developer &amp; links</string>
+    <string name="settings_updates">App Updates</string>
+    <string name="settings_updates_desc">Check for new releases on GitHub</string>
+    <string name="update_current_version">Current Version: %1$s</string>
+    <string name="update_check">Check for Updates</string>
+    <string name="update_no_browser">Could not open browser</string>
     <string name="theme_mode">Theme</string>
     <string name="theme_dark">Dark</string>
     <string name="theme_light">Light</string>
     <string name="theme_system">System Default</string>
     <string name="accent_color">Accent Color</string>
+    <string name="language_desc">Categories and search results are tuned per language</string>
 
     <!-- Search -->
     <string name="search_browse">Browse All</string>
@@ -215,10 +234,49 @@
     <string name="about_developer">Developer: Shubham Singh Yadav</string>
     <string name="about_developer_desc">B.Tech Student · Android &amp; Backend Developer</string>
     <string name="about_github">GitHub: https://github.com/devshubh6</string>
+    <string name="social_github">GitHub</string>
+    <string name="social_instagram">Instagram</string>
+    <string name="social_x">X (Twitter)</string>
+    <string name="social_link_error">Could not open link</string>
     <string name="about_api">API: JioSaavn Unofficial API</string>
     <string name="about_api_desc">Music data &amp; streams provided by the JioSaavn Unofficial API</string>
     <string name="about_licenses">Open Source Licenses</string>
     <string name="about_licenses_desc">Media3 · Room · Retrofit · Coil · Coroutines · Material</string>
+
+    <!-- Smart Volume -->
+    <string name="smart_volume_setting">Smart Volume</string>
+    <string name="smart_volume_desc">Normalizes loudness between tracks (Effects-based limiter)</string>
+
+    <!-- My Stats & Recap -->
+    <string name="stats_setting">My Stats &amp; Recap</string>
+    <string name="stats_setting_desc">Listening history, top songs &amp; weekly activity</string>
+    <string name="stats_open">View</string>
+
+    <!-- Stats dashboard -->
+    <string name="stats_title">My Stats &amp; Recap</string>
+    <string name="stats_total_time">Total Listening Time</string>
+    <string name="stats_total_plays">Times Played</string>
+    <string name="stats_top_songs">Top Songs</string>
+    <string name="stats_top_artist">Top Artist</string>
+    <string name="stats_no_artist">Not enough data yet</string>
+    <string name="stats_week">This Week</string>
+    <string name="stats_week_empty">Start playing music to see your weekly activity</string>
+    <string name="stats_empty_title">No listening yet</string>
+    <string name="stats_empty_desc">Play some songs and your stats will appear here.</string>
+    <string name="stats_clear">Reset Stats</string>
+    <string name="stats_cleared">Stats reset</string>
+    <string name="stats_plays_count">%1$d plays</string>
+    <string name="stats_hours">%1$s hours</string>
+    <string name="stats_days_short">Su Mo Tu We Th Fr Sa</string>
+    <string name="reset">Reset</string>
+    <string name="stats_cleared_confirm">This permanently deletes your listening history and weekly activity. Continue?</string>
+    <string name="day_short_mon">M</string>
+    <string name="day_short_tue">T</string>
+    <string name="day_short_wed">W</string>
+    <string name="day_short_thu">T</string>
+    <string name="day_short_fri">F</string>
+    <string name="day_short_sat">S</string>
+    <string name="day_short_sun">S</string>
 
     <!-- Languages -->
     <string name="lang_hindi">हिन्दी</string>

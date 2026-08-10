@@ -59,7 +59,7 @@ class PlaylistGridAdapter(
     override fun onBindViewHolder(holder: Holder, position: Int) {
         val playlist = items[position]
         holder.binding.tvName.text = playlist.name
-        com.shubh.song.util.ThemeUtils.applyCardTint(holder.binding.root)
+        com.shubh.song.util.ThemeManager.applyCardTint(holder.binding.root)
         holder.binding.root.setOnClickListener { onClick(playlist) }
         holder.binding.ivMore.setOnClickListener { onMore(playlist) }
     }

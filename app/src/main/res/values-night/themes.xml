@@ -45,6 +45,12 @@
     <style name="Theme.Mysong.Dialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
         <item name="colorPrimary">@color/accent</item>
         <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorSurface">@color/bg_surface</item>
+        <item name="colorSurfaceVariant">@color/glass_chip</item>
+        <item name="colorOnSurfaceVariant">@color/text_secondary</item>
+        <item name="android:colorBackground">@color/bg_surface</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
     </style>
 
     <style name="Text.Title.Bold" parent="android:Widget.TextView">

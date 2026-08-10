@@ -93,7 +93,7 @@ class QueueAdapter(
     override fun onBindViewHolder(holder: Holder, position: Int) {
         val song = items[position]
         holder.binding.tvTitle.text = com.shubh.song.util.Ui.html(song.name)
-        holder.binding.tvSubtitle.text = song.artists
+        holder.binding.tvSubtitle.text = com.shubh.song.util.Ui.html(song.artists)
         holder.binding.ivArt.load(song.imageUrl) {
             placeholder(R.drawable.bg_placeholder)
             error(R.drawable.bg_placeholder)

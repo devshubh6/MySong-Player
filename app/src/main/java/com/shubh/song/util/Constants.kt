@@ -17,7 +17,7 @@ object Constants {
     const val KEY_AUDIO_MODE = "audio_mode"     // normal | slowed_reverb | nightcore
     const val KEY_CROSSFADE_SEC = "crossfade_seconds" // 0..12
     const val KEY_AUTO_MIX = "auto_mix"         // append similar tracks at queue end
-    const val KEY_AMOLED = "amoled_black"       // pure #000000 UI mode
+    const val KEY_SMART_LOUDNESS = "smart_loudness" // DynamicsProcessing volume normalize
 
     const val AUDIO_MODE_NORMAL = "normal"
     const val AUDIO_MODE_SLOWED = "slowed"

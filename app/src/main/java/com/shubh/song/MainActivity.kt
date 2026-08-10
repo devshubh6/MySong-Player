@@ -19,7 +19,7 @@ import com.shubh.song.ui.library.LibraryFragment
 import com.shubh.song.ui.search.SearchFragment
 import com.shubh.song.ui.settings.SettingsFragment
 import com.shubh.song.util.NetworkObserver
-import com.shubh.song.util.ThemeUtils
+import com.shubh.song.util.ThemeManager
 import com.shubh.song.util.Ui
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -51,6 +51,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         applyWindowInsets()
+        ThemeManager.applyStatusBarIcons(window)
         requestNotificationPermissionIfNeeded()
         applyAccent()
         setupNavigation()
@@ -65,9 +66,20 @@ class MainActivity : AppCompatActivity() {
             }
         }
         scope.launch {
-            MySongApp.instance.accent.collectLatest { applyAccent() }
+            MySongApp.instance.accent.collectLatest { name ->
+                applyAccent()
+                // Live accent propagation: recreate once per actual change so
+                // every tab (Home/Library/Search/Settings) re-tints instantly.
+                if (name != lastAppliedAccentName) {
+                    lastAppliedAccentName = name
+                    recreate()
+                }
+            }
         }
     }
+
+    /** Last accent seen by the live listener; guards against re-create loops. */
+    private var lastAppliedAccentName: String? = MySongApp.instance.accent.value
 
     /** Keeps content clear of the status & navigation system bars. */
     private fun applyWindowInsets() {
@@ -99,7 +111,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun applyAccent() {
-        ThemeUtils.tintBottomNav(binding.bottomNav)
+        ThemeManager.tintBottomNav(binding.bottomNav)
     }
 
     /** Number of stacked full-screen overlays — kept for API compatibility. */
@@ -137,14 +149,6 @@ class MainActivity : AppCompatActivity() {
             hidden || PlaybackManager.uiState.value.currentSong == null -> View.GONE
             else -> View.VISIBLE
         }
-        applyAmoledChrome()
-    }
-
-    /** Paints pure-black surfaces when AMOLED mode is enabled. */
-    private fun applyAmoledChrome() {
-        val black = com.shubh.song.util.AmoledUtils.black()
-        binding.root.setBackgroundColor(black)
-        binding.bottomNav.setBackgroundColor(black)
     }
 
     private fun requestNotificationPermissionIfNeeded() {
@@ -160,6 +164,12 @@ class MainActivity : AppCompatActivity() {
     /** Accent changed (called from SettingsFragment) — re-apply tints. */
     fun refreshAccent() {
         applyAccent()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Re-assert system-bar icon contrast after any theme switch.
+        ThemeManager.applyStatusBarIcons(window)
     }
 
     override fun onStart() {

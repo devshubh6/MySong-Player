@@ -1,6 +1,7 @@
 package com.shubh.song.ui.detail
 
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -28,7 +29,7 @@ import com.shubh.song.databinding.ItemAlbumTrackBinding
 import com.shubh.song.media.PlaybackManager
 import com.shubh.song.ui.common.OverlayNav
 import com.shubh.song.ui.player.PlayerActivity
-import com.shubh.song.util.ThemeUtils
+import com.shubh.song.util.ThemeManager
 import com.shubh.song.util.Ui
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -94,6 +95,21 @@ class AlbumDetailFragment : Fragment() {
         return binding.root
     }
 
+    /** Re-tints the Play All button to the live accent after any change. */
+    override fun onResume() {
+        super.onResume()
+        applyAccentTints()
+    }
+
+    private fun applyAccentTints() {
+        try {
+            binding.btnPlayAll.backgroundTintList =
+                ColorStateList.valueOf(ThemeManager.accentColor())
+        } catch (t: Throwable) {
+            // Tinting is cosmetic; never crash.
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         (activity as? MainActivity)?.setSearchMode(true)
@@ -129,12 +145,12 @@ setupHeader()
 
         val image = albumImage
         if (image.isBlank()) {
-            val accent = ThemeUtils.accentColor(requireContext())
+            val accent = ThemeManager.accentColor()
             val gradient = GradientDrawable(
                 GradientDrawable.Orientation.TL_BR,
                 intArrayOf(
-                    ThemeUtils.withAlpha(accent, 60),
-                    ThemeUtils.withAlpha(accent, 22),
+                    ThemeManager.withAlpha(accent, 60),
+                    ThemeManager.withAlpha(accent, 22),
                     android.graphics.Color.parseColor("#14141F")
                 )
             )
@@ -312,7 +328,7 @@ private class AlbumTrackAdapter(
         val song = items[position]
         holder.binding.tvIndex.text = (position + 1).toString()
         holder.binding.tvTitle.text = com.shubh.song.util.Ui.html(song.name)
-        holder.binding.tvSubtitle.text = song.artists
+        holder.binding.tvSubtitle.text = com.shubh.song.util.Ui.html(song.artists)
         holder.binding.tvDuration.text =
             com.shubh.song.util.Ui.formatDuration(song.durationSec.coerceAtLeast(0) * 1000)
 

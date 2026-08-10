@@ -11,6 +11,7 @@ import com.shubh.song.R
 import com.shubh.song.databinding.SheetLangFilterBinding
 import com.shubh.song.ui.common.LangChipAdapter
 import com.shubh.song.util.Constants
+import com.shubh.song.util.LiquidGlass
 import com.shubh.song.util.Ui
 
 /** Multi-language picker shown from the Home header; applies a live feed filter. */
@@ -25,6 +26,11 @@ class LangFilterSheet : BottomSheetDialogFragment() {
     fun setOnApply(callback: (Set<String>) -> Unit): LangFilterSheet {
         onApply = callback
         return this
+    }
+
+    override fun onStart() {
+        super.onStart()
+        LiquidGlass.apply(dialog)
     }
 
     override fun onCreateView(

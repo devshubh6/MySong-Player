@@ -12,6 +12,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.shubh.song.R
 import com.shubh.song.databinding.SheetSleepBinding
 import com.shubh.song.media.SleepTimer
+import com.shubh.song.util.LiquidGlass
 import com.shubh.song.util.Ui
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -19,6 +20,11 @@ import kotlinx.coroutines.launch
 class SleepSheet : BottomSheetDialogFragment() {
 
     private lateinit var binding: SheetSleepBinding
+
+    override fun onStart() {
+        super.onStart()
+        LiquidGlass.apply(dialog)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,

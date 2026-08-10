@@ -14,7 +14,7 @@ import com.shubh.song.data.repository.SettingsRepository
 import com.shubh.song.media.PlaybackManager
 import com.shubh.song.util.CrashLogger
 import com.shubh.song.util.NetworkObserver
-import com.shubh.song.util.ThemeUtils
+import com.shubh.song.util.ThemeManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.util.Locale
@@ -61,7 +61,7 @@ class MySongApp : Application() {
     /** Persists the accent (name + color hex) and notifies every observing screen. */
     fun setAccent(name: String) {
         settingsRepository.setAccent(name)
-        settingsRepository.prefs.accentHex = ThemeUtils.accentHex(name)
+        settingsRepository.prefs.accentHex = ThemeManager.accentHex(name)
         _accent.value = name
     }
 

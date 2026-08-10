@@ -42,8 +42,8 @@ class SettingsRepository(context: Context) {
     val autoMix: Boolean
         get() = prefs.autoMix
 
-    val amoledBlack: Boolean
-        get() = prefs.amoledBlack
+    val smartLoudness: Boolean
+        get() = prefs.smartLoudness
 
     fun setEqEnabled(enabled: Boolean) {
         prefs.eqEnabled = enabled
@@ -61,8 +61,8 @@ class SettingsRepository(context: Context) {
         prefs.autoMix = enabled
     }
 
-    fun setAmoledBlack(enabled: Boolean) {
-        prefs.amoledBlack = enabled
+    fun setSmartLoudness(enabled: Boolean) {
+        prefs.smartLoudness = enabled
     }
 
     fun setTheme(mode: String) {
@@ -102,6 +102,7 @@ class SettingsRepository(context: Context) {
             ?.forEach { it.delete() }
     }
 
+    @OptIn(coil.annotation.ExperimentalCoilApi::class)
     private fun imageCacheDir(): File? =
         try {
             val loader: ImageLoader = Coil.imageLoader(appContext)

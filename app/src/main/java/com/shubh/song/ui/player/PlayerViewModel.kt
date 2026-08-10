@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class PlayerViewModel : ViewModel() {
 
     private val repository: LibraryRepository = MySongApp.instance.libraryRepository

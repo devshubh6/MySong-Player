@@ -144,7 +144,6 @@ class MusicService : Service() {
         val state = PlaybackManager.uiState.value
         val song = state.currentSong
         val isPlaying = state.isPlaying
-        val player = PlaybackManager.player
 
         val artist = song?.artists.orEmpty()
         val album = song?.album.orEmpty()

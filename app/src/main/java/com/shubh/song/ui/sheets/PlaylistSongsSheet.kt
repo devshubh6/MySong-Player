@@ -17,6 +17,7 @@ import com.shubh.song.media.PlaybackManager
 import com.shubh.song.MySongApp
 import com.shubh.song.ui.common.SongAdapter
 import com.shubh.song.ui.player.PlayerActivity
+import com.shubh.song.util.LiquidGlass
 import com.shubh.song.util.Ui
 import kotlinx.coroutines.launch
 
@@ -33,6 +34,11 @@ class PlaylistSongsSheet : BottomSheetDialogFragment() {
         LIKED("liked"),
         DOWNLOADS("downloads"),
         CACHED("cached")
+    }
+
+    override fun onStart() {
+        super.onStart()
+        LiquidGlass.apply(dialog)
     }
 
     override fun onCreateView(

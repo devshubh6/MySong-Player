@@ -50,11 +50,10 @@ class HomeViewModel : ViewModel() {
 
     fun refresh() {
         val languages = MySongApp.instance.settingsRepository.languages
-        val country = MySongApp.instance.settingsRepository.country
         viewModelScope.launch {
             _feed.value = FeedState(loading = true)
             try {
-                val data = repository.homeFeed(languages, country)
+                val data = repository.homeFeed(languages)
                 _feed.value = FeedState(loading = false, feed = data)
             } catch (t: Throwable) {
                 _feed.value = FeedState(loading = false, error = true)

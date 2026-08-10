@@ -1,5 +1,6 @@
 package com.shubh.song.ui.detail
 
+import android.content.res.ColorStateList
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -25,7 +26,7 @@ import com.shubh.song.media.PlaybackManager
 import com.shubh.song.ui.common.OverlayNav
 import com.shubh.song.ui.common.SongAdapter
 import com.shubh.song.ui.player.PlayerActivity
-import com.shubh.song.util.ThemeUtils
+import com.shubh.song.util.ThemeManager
 import com.shubh.song.util.Ui
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -82,6 +83,21 @@ class ArtistDetailFragment : Fragment() {
         return binding.root
     }
 
+    /** Re-tints the Play All button to the live accent after any change. */
+    override fun onResume() {
+        super.onResume()
+        applyAccentTints()
+    }
+
+    private fun applyAccentTints() {
+        try {
+            binding.btnPlayAll.backgroundTintList =
+                ColorStateList.valueOf(ThemeManager.accentColor())
+        } catch (t: Throwable) {
+            // Tinting is cosmetic; never crash.
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         (activity as? MainActivity)?.setSearchMode(true)
@@ -116,12 +132,12 @@ class ArtistDetailFragment : Fragment() {
 
         if (artistImage.isBlank()) {
             // Fallback artwork: accent gradient + big initial letter.
-            val accent = ThemeUtils.accentColor(requireContext())
+            val accent = ThemeManager.accentColor()
             val gradient = GradientDrawable(
                 GradientDrawable.Orientation.TL_BR,
                 intArrayOf(
-                    ThemeUtils.withAlpha(accent, 62),
-                    ThemeUtils.withAlpha(accent, 20),
+                    ThemeManager.withAlpha(accent, 62),
+                    ThemeManager.withAlpha(accent, 20),
                     android.graphics.Color.parseColor("#14141F")
                 )
             )
