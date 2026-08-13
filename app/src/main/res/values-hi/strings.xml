@@ -1,0 +1,48 @@
+<resources>
+    <string name="app_name">Mysong</string>
+    <string name="tagline">आपका संगीत। आपकी शैली।</string>
+
+    <string name="tab_home">होम</string>
+    <string name="tab_library">लाइब्रेरी</string>
+    <string name="tab_settings">सेटिंग्स</string>
+
+    <string name="search_hint">गाने, एल्बम, कलाकार खोजें…</string>
+    <string name="feed_trending">ट्रेंडिंग</string>
+    <string name="feed_top_charts">टॉप चार्ट्स</string>
+    <string name="feed_featured_albums">फीचर्ड एल्बम</string>
+    <string name="feed_popular_artists">लोकप्रिय कलाकार</string>
+    <string name="feed_top_playlists">टॉप प्लेलिस्ट</string>
+
+    <string name="library_title">आपकी लाइब्रेरी</string>
+    <string name="folder_downloads">डाउनलोड</string>
+    <string name="folder_downloads_desc">ऑफलाइन सुनने के लिए डिवाइस पर सहेजे गए गाने</string>
+    <string name="folder_liked">पसंदीदा गाने</string>
+    <string name="folder_liked_desc">वे सभी गाने जिन्हें आपने पसंद किया है</string>
+    <string name="folder_cached">कैश्ड गाने</string>
+    <string name="folder_cached_desc">स्ट्रीमिंग के दौरान ऑटो-कैश्ड गाने</string>
+    <string name="create_playlist">प्लेलिस्ट बनाएं</string>
+    <string name="your_playlists">आपकी प्लेलिस्ट</string>
+
+    <string name="cancel">रद्द करें</string>
+    <string name="delete">हटाएं</string>
+    <string name="rename">नाम बदलें</string>
+
+    <string name="share_track">गाना साझा करें</string>
+    <string name="sleep_timer">स्लीप टाइमर</string>
+    <string name="equalizer">इक्वलाइज़र</string>
+    <string name="queue_empty">कतार खाली है</string>
+
+    <string name="settings_title">सेटिंग्स</string>
+    <string name="section_appearance">रूप-रंग</string>
+    <string name="theme_dark">डार्क</string>
+    <string name="theme_light">लाइट</string>
+    <string name="theme_system">सिस्टम डिफ़ॉल्ट</string>
+    <string name="accent_color">एक्सेंट रंग</string>
+    <string name="section_audio">ऑडियो</string>
+    <string name="section_content">सामग्री</string>
+    <string name="language_setting">भाषा</string>
+    <string name="country_setting">देश / क्षेत्र</string>
+    <string name="section_storage">कैश और स्टोरेज</string>
+    <string name="clear_cache">कैश साफ़ करें</string>
+    <string name="section_about">जानकारी</string>
+</resources>

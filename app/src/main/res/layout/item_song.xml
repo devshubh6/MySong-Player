@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/song_item"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="center_vertical"
+    android:minHeight="62dp"
+    android:orientation="horizontal"
+    android:paddingVertical="6dp"
+    android:paddingHorizontal="8dp">
+
+    <FrameLayout
+        android:layout_width="48dp"
+        android:layout_height="48dp">
+
+        <ImageView
+            android:id="@+id/iv_art"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_round_art"
+            android:clipToOutline="true"
+            android:scaleType="centerCrop" />
+
+        <ImageView
+            android:id="@+id/iv_playing"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="#66000000"
+            android:padding="14dp"
+            android:src="@drawable/ic_play"
+            android:tint="@color/white"
+            android:visibility="gone" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="@color/text_primary"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_subtitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/iv_menu"
+        android:layout_width="38dp"
+        android:layout_height="38dp"
+        android:padding="9dp"
+        android:src="@drawable/ic_more_vert"
+        android:tint="@color/text_tertiary"
+        android:visibility="gone" />
+</LinearLayout>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.Mysong" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/accent</item>
+        <item name="colorOnPrimary">@color/text_on_accent</item>
+        <item name="colorPrimaryContainer">@color/accent_soft</item>
+        <item name="colorOnPrimaryContainer">@color/accent</item>
+        <item name="colorSecondary">@color/accent_purple</item>
+        <item name="colorOnSecondary">@color/text_on_accent</item>
+        <item name="colorSecondaryContainer">@color/accent_soft</item>
+        <item name="colorOnSecondaryContainer">@color/accent</item>
+        <item name="colorSurface">@color/bg_surface</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorSurfaceContainer">@color/glass_card</item>
+        <item name="colorSurfaceContainerHigh">@color/glass_card_strong</item>
+        <item name="colorSurfaceVariant">@color/glass_chip</item>
+        <item name="colorOnSurfaceVariant">@color/nav_inactive</item>
+        <item name="colorOutline">@color/glass_stroke</item>
+        <item name="colorOutlineVariant">@color/divider</item>
+        <item name="colorError">@color/accent_red</item>
+        <item name="colorOnError">@color/text_on_accent</item>
+
+        <item name="android:windowBackground">@color/bg_primary</item>
+        <item name="android:statusBarColor">@color/bg_primary</item>
+        <item name="android:navigationBarColor">@color/bg_primary</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+
+        <item name="bottomSheetDialogTheme">@style/Theme.Mysong.BottomSheet</item>
+        <item name="android:alertDialogTheme">@style/Theme.Mysong.Dialog</item>
+    </style>
+
+    <style name="Theme.Mysong.Player" parent="Theme.Mysong">
+        <item name="android:statusBarColor">@color/black</item>
+        <item name="android:navigationBarColor">@color/bg_primary</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
+
+    <style name="Theme.Mysong.BottomSheet" parent="ThemeOverlay.Material3.BottomSheetDialog">
+        <item name="android:windowBackground">@drawable/bg_bottom_sheet</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowSoftInputMode">adjustResize</item>
+    </style>
+
+    <style name="Theme.Mysong.Dialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="colorPrimary">@color/accent</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorSurface">@color/bg_surface</item>
+        <item name="colorOnSurfaceVariant">@color/text_secondary</item>
+        <item name="android:colorBackground">@color/bg_surface</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+    </style>
+
+    <style name="Text.Title.Bold" parent="android:Widget.TextView">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Text.SectionTitle" parent="android:Widget.TextView">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Widget.Mysong.EditText" parent="android:Widget.EditText">
+        <item name="android:background">@drawable/bg_search_bar</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textColorHint">@color/text_tertiary</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:paddingStart">18dp</item>
+        <item name="android:paddingEnd">18dp</item>
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingBottom">12dp</item>
+        <item name="android:inputType">text</item>
+        <item name="android:imeOptions">actionSearch</item>
+        <item name="android:maxLines">1</item>
+    </style>
+</resources>

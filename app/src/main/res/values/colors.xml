@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Light palette (used when theme = Light / System with light mode) -->
+    <color name="bg_primary">#F3F4FA</color>
+    <color name="bg_surface">#FFFFFF</color>
+    <color name="bg_surface_elevated">#FFFFFF</color>
+    <color name="minibar_bg">#EEFFFFFF</color>
+
+    <color name="glass_card">#B3FFFFFF</color>
+    <color name="glass_card_strong">#E0FFFFFF</color>
+    <color name="glass_chip">#26000000</color>
+    <color name="glass_stroke">#1A000000</color>
+    <color name="divider">#14000000</color>
+    <color name="progress_track">#26000000</color>
+
+    <color name="text_primary">#14141F</color>
+    <color name="text_secondary">#55556B</color>
+    <color name="text_tertiary">#8C8CA2</color>
+    <color name="text_on_accent">#0A0A12</color>
+
+    <color name="scrim">#8C000000</color>
+    <color name="player_gradient_top">#D9D9EE</color>
+    <color name="player_gradient_bottom">#A9A9C4</color>
+    <color name="placeholder_a">#C9CBE0</color>
+    <color name="placeholder_b">#9EA1C4</color>
+
+    <color name="accent">#4ADE80</color>
+    <color name="accent_soft">#334ADE80</color>
+    <color name="accent_green">#4ADE80</color>
+    <color name="accent_purple">#A78BFA</color>
+    <color name="accent_pink">#F472B6</color>
+    <color name="accent_cyan">#38BDF8</color>
+    <color name="accent_amber">#FBBF24</color>
+    <color name="accent_red">#F87171</color>
+
+    <!-- Icon chip container: 12% primary-cover so icons read soft & premium -->
+    <color name="icon_container_bg">#1A4ADE80</color>
+
+    <!-- Bottom nav: active uses soft primary, inactive muted surface -->
+    <color name="nav_active">#4ADE80</color>
+    <color name="nav_inactive">#8E8E93</color>
+
+    <color name="log_normal">#27AE60</color>
+    <color name="log_warning">#F5B841</color>
+    <color name="log_error">#FF4D4F</color>
+
+    <!-- Shimmer skeleton placeholders -->
+    <color name="skeleton">#232A33</color>
+    <color name="skeleton_line">#2E3742</color>
+
+    <color name="icon_tint">#14141F</color>
+    <color name="icon_tint_muted">#55556B</color>
+    <color name="overlay_scrim">#00000000</color>
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+</resources>

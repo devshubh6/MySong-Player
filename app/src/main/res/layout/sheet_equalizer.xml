@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/equalizer_sheet"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingTop="14dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="22dp"
+        android:paddingEnd="22dp"
+        android:paddingTop="14dp"
+        android:paddingBottom="12dp">
+
+        <TextView
+            android:id="@+id/tv_eq_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/equalizer"
+            android:textColor="@color/text_primary"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/sw_eq_master"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/enable_equalizer"
+            android:textColor="@color/text_primary"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_eq_presets"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clipToPadding="false"
+        android:orientation="horizontal"
+        android:overScrollMode="never"
+        android:paddingStart="22dp"
+        android:paddingEnd="22dp"
+        android:scrollbars="none" />
+
+    <TextView
+        android:id="@+id/tv_eq_preset"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:paddingStart="22dp"
+        android:paddingEnd="22dp"
+        android:textColor="@color/accent"
+        android:textSize="12sp"
+        android:textStyle="bold" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_eq_bands"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:nestedScrollingEnabled="false"
+        android:overScrollMode="never"
+        android:scrollbars="none" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="22dp"
+        android:paddingTop="16dp">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_equalizer"
+            android:tint="@color/text_secondary" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_weight="1"
+            android:text="@string/eq_bass_boost"
+            android:textColor="@color/text_primary"
+            android:textSize="13sp" />
+
+        <androidx.appcompat.widget.AppCompatSeekBar
+            android:id="@+id/sb_bass"
+            android:layout_width="160dp"
+            android:layout_height="wrap_content"
+            android:max="1000"
+            android:progressDrawable="@drawable/bg_seekbar"
+            android:thumb="@drawable/bg_seek_thumb" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="22dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="22dp">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_headset"
+            android:tint="@color/text_secondary" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_weight="1"
+            android:text="@string/eq_virtualizer"
+            android:textColor="@color/text_primary"
+            android:textSize="13sp" />
+
+        <androidx.appcompat.widget.AppCompatSeekBar
+            android:id="@+id/sb_virtual"
+            android:layout_width="160dp"
+            android:layout_height="wrap_content"
+            android:max="1000"
+            android:progressDrawable="@drawable/bg_seekbar"
+            android:thumb="@drawable/bg_seek_thumb" />
+    </LinearLayout>
+</LinearLayout>
