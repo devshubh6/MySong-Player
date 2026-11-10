@@ -7,31 +7,26 @@ import kotlin.math.abs
 /**
  * Reels / Shorts-style depth transition for the vertical player pager.
  *
- * The current page stays full-frame while sliding out with a fade, and the
- * incoming page rises into place scaled down to 85% — growing to full size as
- * it settles — exactly like Instagram Reels vertical swiping.
+ * The pages themselves keep their natural vertical slide (the adjacent song
+ * artwork follows the finger), while this transformer adds a subtle depth
+ * scale: the settled page is full-size and the incoming/outgoing pages are
+ * slightly smaller. No opacity fade — both reels stay visible during the
+ * gesture, exactly like short-form video feeds.
  */
 class ReelsPageTransformer : ViewPager2.PageTransformer {
 
     override fun transformPage(page: View, position: Float) {
-        page.apply {
-            when {
-                position < -1 -> alpha = 0f
-                position <= 0 -> {
-                    alpha = 1f + position
-                    translationY = 0f
-                    scaleX = 1f
-                    scaleY = 1f
-                }
-                position <= 1 -> {
-                    alpha = 1f - position
-                    translationY = height * -position
-                    val scaleFactor = 0.85f + (1f - 0.85f) * (1f - abs(position))
-                    scaleX = scaleFactor
-                    scaleY = scaleFactor
-                }
-                else -> alpha = 0f
-            }
-        }
+        val distance = abs(position).coerceAtMost(1f)
+        val scale = MIN_SCALE + (1f - MIN_SCALE) * (1f - distance)
+
+        page.alpha = 1f
+        page.translationY = 0f
+        page.scaleX = scale
+        page.scaleY = scale
+    }
+
+    private companion object {
+        /** Artwork scale of the page that is one full swipe away. */
+        const val MIN_SCALE = 0.92f
     }
 }

@@ -28,7 +28,6 @@ import com.shubh.song.MySongApp
 import com.shubh.song.R
 import com.shubh.song.databinding.ActivityPlayerBinding
 import com.shubh.song.databinding.ItemPlayerPageBinding
-import com.shubh.song.media.DownloadEngine
 import com.shubh.song.media.PlaybackManager
 import com.shubh.song.ui.common.AppViewModelFactory
 import com.shubh.song.ui.detail.ArtistDetailFragment
@@ -58,13 +57,30 @@ class PlayerActivity : AppCompatActivity() {
         onSpeedEnd = {
             PlaybackManager.setSpeed(1f)
             binding.tvSpeedChip.visibility = View.GONE
-        }
+        },
+        onArtist = { song -> openArtistProfile(song) },
+        onLike = { song -> viewModel.toggleLikeFor(song, likedIds.contains(song.id)) },
+        onDownload = { song ->
+            if (downloadedIds.contains(song.id)) {
+                Ui.toast(getString(R.string.download_complete))
+            } else {
+                viewModel.download(song)
+            }
+        },
+        onShuffle = { PlaybackManager.toggleShuffle() },
+        onRepeat = { PlaybackManager.cycleRepeat() },
+        onMore = { song -> showTrackOptions(song) }
     )
 
     private var userScrolling = false
     private var scrubbing = false
     private var pullDownHandled = false
     private var lastQueue: List<com.shubh.song.data.model.Song> = emptyList()
+    private var latestState = PlaybackManager.PlayerUiState()
+    private var likedIds: Set<String> = emptySet()
+    private var downloadedIds: Set<String> = emptySet()
+    private var downloadProgress: Map<String, Int> = emptyMap()
+    private var accentColor: Int = Color.WHITE
 
     /**
      * Tracks the karaoke/lyrics sheet lifecycle: dims the artwork to 60%
@@ -197,6 +213,7 @@ class PlayerActivity : AppCompatActivity() {
         ThemeManager.applyStatusBarIcons(window)
 
         binding.vpSongs.orientation = ViewPager2.ORIENTATION_VERTICAL
+        binding.vpSongs.offscreenPageLimit = 1
         binding.vpSongs.adapter = pagerAdapter
         binding.vpSongs.setPageTransformer(ReelsPageTransformer())
         binding.vpSongs.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
@@ -225,9 +242,24 @@ class PlayerActivity : AppCompatActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch { viewModel.playback.collectLatest { bind(it) } }
-                launch { viewModel.isLiked.collectLatest { bindLike(it) } }
-                launch { viewModel.isDownloaded.collectLatest { bindDownload(it) } }
-                launch { viewModel.downloadProgress.collectLatest { bindDownload(viewModel.isDownloaded.value) } }
+                launch {
+                    viewModel.likedIds.collectLatest {
+                        likedIds = it
+                        pushPageState()
+                    }
+                }
+                launch {
+                    viewModel.downloadedIds.collectLatest {
+                        downloadedIds = it
+                        pushPageState()
+                    }
+                }
+                launch {
+                    viewModel.downloadProgress.collectLatest {
+                        downloadProgress = it
+                        pushPageState()
+                    }
+                }
                 launch { viewModel.sleepRemainingMs.collectLatest { bindSleep(it) } }
                 launch { MySongApp.instance.accent.collectLatest { applyAccent() } }
             }
@@ -294,6 +326,7 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     private fun bind(state: PlaybackManager.PlayerUiState) {
+        latestState = state
         val songs = state.queue
         if (songs != lastQueue || songs.size != lastQueue.size) {
             lastQueue = songs
@@ -313,11 +346,6 @@ class PlayerActivity : AppCompatActivity() {
         binding.tvPlayingPosition.text =
             if (songs.isNotEmpty()) "${state.index + 1} / ${songs.size}" else ""
 
-        binding.tvSongTitle.text = Ui.html(current?.name ?: "")
-        binding.tvSongArtist.text = Ui.html(
-            current?.let { fileOf(it) } ?: ""
-        )
-
         val image = current?.imageUrl
         if (!image.isNullOrBlank()) {
             binding.ivBackground.load(image) {
@@ -332,15 +360,7 @@ class PlayerActivity : AppCompatActivity() {
         binding.tvOfflineBadge.visibility =
             if (state.isOffline) View.VISIBLE else View.GONE
 
-        if (!image.isNullOrBlank()) {
-            binding.ivArtistAvatar.load(image) {
-                placeholder(R.drawable.bg_placeholder)
-                error(R.drawable.bg_placeholder)
-                crossfade(250)
-            }
-        }
         if (!scrubbing) {
-            binding.tvCurrentTime.text = Ui.formatDuration(state.positionMs)
             binding.sbProgress.progress =
                 if (state.durationMs > 0) {
                     (state.positionMs * 1000 / state.durationMs).toInt()
@@ -352,16 +372,21 @@ class PlayerActivity : AppCompatActivity() {
                         .coerceIn(0, 1000)
                 } else 0
         }
-        binding.pbBuffering.visibility =
-            if (state.isBuffering) View.VISIBLE else View.GONE
-        binding.loadingOverlay.visibility =
-            if (state.isBuffering) View.VISIBLE else View.GONE
-        binding.tvTotalTime.text = Ui.formatDuration(state.durationMs)
-        bindPlayModes(state.shuffleEnabled, state.repeatMode)
+
+        pushPageState()
     }
 
-    private fun fileOf(song: com.shubh.song.data.model.Song): String =
-        listOf(song.artists, song.album).filter { it.isNotBlank() }.joinToString("  •  ")
+    /** Pushes the latest playback/library snapshot into every bound reel. */
+    private fun pushPageState() {
+        pagerAdapter.setPlayback(
+            state = latestState,
+            likedIds = likedIds,
+            downloadedIds = downloadedIds,
+            downloadProgress = downloadProgress,
+            accent = accentColor,
+            scrubbing = scrubbing
+        )
+    }
 
     private fun bindSleep(remainingMs: Long?) {
         if (remainingMs == null || remainingMs <= 0) {
@@ -373,97 +398,18 @@ class PlayerActivity : AppCompatActivity() {
         binding.tvSleepBadge.text = minutes
     }
 
-    private fun bindPlayModes(shuffleEnabled: Boolean, repeatMode: Int) {
-        val accent = Ui.accentColor(this)
-        val white = android.graphics.Color.WHITE
-        val dim = android.graphics.Color.argb(179, 255, 255, 255)
-
-        fillSegment(binding.btnShuffle, shuffleEnabled, accent)
-        binding.ivShuffle.setColorFilter(if (shuffleEnabled) white else dim)
-
-        val repeatOne = repeatMode == Player.REPEAT_MODE_ONE
-        fillSegment(binding.btnRepeat, repeatOne, accent)
-        binding.tvRepeatBadge.visibility = if (repeatOne) View.VISIBLE else View.GONE
-        binding.tvRepeatBadge.backgroundTintList = ColorStateList.valueOf(accent)
-        binding.ivRepeat.setColorFilter(if (repeatMode == Player.REPEAT_MODE_OFF) dim else accent)
-    }
-
-    private fun fillSegment(view: View, filled: Boolean, color: Int) {
-        (view.background as? android.graphics.drawable.GradientDrawable)?.setColor(
-            if (filled) color else android.graphics.Color.TRANSPARENT
-        )
-    }
-
-    private fun bindLike(liked: Boolean) {
-        binding.ivLike.setImageResource(
-            if (liked) R.drawable.ic_favorite else R.drawable.ic_favorite_border
-        )
-        binding.ivLike.colorFilter =
-            if (liked) PorterDuffColorFilter(Ui.accentColor(this), android.graphics.PorterDuff.Mode.SRC_IN)
-            else null
-        binding.ivLike.setImageTintList(
-            if (liked) null
-            else ResourcesCompat.getColorStateList(resources, android.R.color.white, theme)
-        )
-    }
-
-    private fun bindDownload(downloaded: Boolean) {
-        val songId = viewModel.currentSong()?.id
-        val progress = songId?.let { DownloadEngine.progressOf(it) }
-        when {
-            downloaded -> {
-                binding.ivDownload.visibility = View.VISIBLE
-                binding.pbDownload.visibility = View.GONE
-                binding.ivDownload.setImageResource(R.drawable.ic_download_done)
-                binding.ivDownload.imageTintList =
-                    ResourcesCompat.getColorStateList(resources, R.color.accent, theme)
-            }
-            progress != null && progress in 0..99 -> {
-                binding.ivDownload.visibility = View.INVISIBLE
-                binding.pbDownload.visibility = View.VISIBLE
-                binding.pbDownload.isIndeterminate = progress <= 0
-                binding.pbDownload.progress = if (progress <= 0) 0 else progress
-            }
-            else -> {
-                binding.ivDownload.visibility = View.VISIBLE
-                binding.pbDownload.visibility = View.GONE
-                binding.ivDownload.setImageResource(R.drawable.ic_download)
-                binding.ivDownload.setColorFilter(Color.WHITE)
-            }
-        }
-    }
-
     private fun applyAccent() {
         val accent = Ui.accentColor(this)
+        accentColor = accent
         binding.sbProgress.progressTintList = ColorStateList.valueOf(accent)
         binding.sbProgress.thumbTintList = ColorStateList.valueOf(accent)
         binding.tvSleepBadge.backgroundTintList = ColorStateList.valueOf(accent)
-        binding.tvRepeatBadge.backgroundTintList = ColorStateList.valueOf(accent)
-        bindLike(viewModel.isLiked.value)
-        bindPlayModes(
-            PlaybackManager.uiState.value.shuffleEnabled,
-            PlaybackManager.uiState.value.repeatMode
-        )
+        pushPageState()
     }
 
     private fun setupControls() {
-        binding.btnArtist.setOnClickListener { openArtistProfile() }
-
-        binding.btnLike.setOnClickListener { viewModel.toggleLike() }
-        binding.btnLyrics.setOnClickListener {
-            showSheet(LyricsSheet(), "lyrics")
-        }
-        binding.btnShuffle.setOnClickListener { PlaybackManager.toggleShuffle() }
-        binding.btnRepeat.setOnClickListener { PlaybackManager.cycleRepeat() }
-        binding.btnDownload.setOnClickListener {
-            if (viewModel.isDownloaded.value) {
-                Ui.toast(getString(R.string.download_complete))
-            } else {
-                viewModel.downloadCurrent()
-            }
-        }
+        binding.btnLyrics.setOnClickListener { showSheet(LyricsSheet(), "lyrics") }
         binding.btnQueue.setOnClickListener { showSheet(QueueSheet(), "queue") }
-        binding.btnMore.setOnClickListener { showSheet(TrackOptionsSheet(), "options") }
         binding.btnSleep.setOnClickListener { showSheet(SleepSheet(), "sleep") }
         binding.btnSpatial.setOnClickListener { showSheet(SpatialSheet(), "spatial") }
 
@@ -484,7 +430,7 @@ class PlayerActivity : AppCompatActivity() {
                 val duration = viewModel.playback.value.durationMs
                 if (duration > 0) {
                     val target = duration * progress.coerceIn(0, 1000) / 1000L
-                    binding.tvCurrentTime.text = Ui.formatDuration(target)
+                    pagerAdapter.setScrubPosition(target)
                     // Live seek on every move event — playback never pauses,
                     // the audio simply jumps to the finger position.
                     PlaybackManager.seekTo(target)
@@ -493,6 +439,7 @@ class PlayerActivity : AppCompatActivity() {
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
                 scrubbing = true
+                pushPageState()
                 animateTimelineHeight(6f)
             }
 
@@ -528,9 +475,8 @@ class PlayerActivity : AppCompatActivity() {
      * artist's full catalog (songs, albums, more) as a full-screen overlay
      * hosted right inside the player.
      */
-    private fun openArtistProfile() {
+    private fun openArtistProfile(song: com.shubh.song.data.model.Song) {
         try {
-            val song = viewModel.currentSong() ?: return
             val name = song.artists.trim()
             if (name.isEmpty()) return
             val manager = supportFragmentManager
@@ -545,13 +491,34 @@ class PlayerActivity : AppCompatActivity() {
                 )
                 .add(
                     R.id.overlay_host,
-                    ArtistDetailFragment.newInstance(null, name, song.imageUrl.orEmpty()),
+                    ArtistDetailFragment.newInstance(null, name, song.imageUrl),
                     ArtistDetailFragment.TAG
                 )
                 .commitAllowingStateLoss()
         } catch (t: Throwable) {
             // Profile navigation must never crash playback.
         }
+    }
+
+    /**
+     * Opens the track options for the tapped reel's song. If the rail was
+     * tapped on an adjacent page, that song first becomes the current one.
+     */
+    private fun showTrackOptions(song: com.shubh.song.data.model.Song) {
+        if (viewModel.currentSong()?.id != song.id) {
+            val index = viewModel.playback.value.queue.indexOfFirst { it.id == song.id }
+            if (index >= 0) {
+                try {
+                    PlaybackManager.seekToIndex(index)
+                    if (index in 0 until pagerAdapter.itemCount) {
+                        binding.vpSongs.setCurrentItem(index, false)
+                    }
+                } catch (t: Throwable) {
+                    // Best-effort selection; options still open below.
+                }
+            }
+        }
+        showSheet(TrackOptionsSheet(), "options")
     }
 
     /** Crash-proof bottom sheet presentation: guards the FragmentManager. */
@@ -588,16 +555,52 @@ private class PlayerPagerAdapter(
     private val onTap: () -> Unit,
     private val onSkip: (direction: Int) -> Unit,
     private val onSpeedStart: () -> Unit,
-    private val onSpeedEnd: () -> Unit
+    private val onSpeedEnd: () -> Unit,
+    private val onArtist: (com.shubh.song.data.model.Song) -> Unit,
+    private val onLike: (com.shubh.song.data.model.Song) -> Unit,
+    private val onDownload: (com.shubh.song.data.model.Song) -> Unit,
+    private val onShuffle: () -> Unit,
+    private val onRepeat: () -> Unit,
+    private val onMore: (com.shubh.song.data.model.Song) -> Unit
 ) : RecyclerView.Adapter<PlayerPagerAdapter.Page>() {
 
     private val items = mutableListOf<com.shubh.song.data.model.Song>()
+    private val boundPages = mutableMapOf<Int, Page>()
     private var pressed = false
+
+    private var state = PlaybackManager.PlayerUiState()
+    private var likedIds: Set<String> = emptySet()
+    private var downloadedIds: Set<String> = emptySet()
+    private var downloadProgress: Map<String, Int> = emptyMap()
+    private var accent: Int = Color.WHITE
+    private var scrubbing = false
 
     fun submit(songs: List<com.shubh.song.data.model.Song>) {
         items.clear()
         items.addAll(songs)
+        boundPages.clear()
         notifyDataSetChanged()
+    }
+
+    fun setPlayback(
+        state: PlaybackManager.PlayerUiState,
+        likedIds: Set<String>,
+        downloadedIds: Set<String>,
+        downloadProgress: Map<String, Int>,
+        accent: Int,
+        scrubbing: Boolean
+    ) {
+        this.state = state
+        this.likedIds = likedIds
+        this.downloadedIds = downloadedIds
+        this.downloadProgress = downloadProgress
+        this.accent = accent
+        this.scrubbing = scrubbing
+        boundPages.forEach { (_, page) -> page.update() }
+    }
+
+    fun setScrubPosition(positionMs: Long) {
+        boundPages[state.index]?.showScrubPosition(positionMs)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Page =
@@ -605,9 +608,33 @@ private class PlayerPagerAdapter(
 
     override fun getItemCount(): Int = items.size
 
-    override fun onBindViewHolder(holder: Page, position: Int) = holder.bind()
+    override fun onBindViewHolder(holder: Page, position: Int) {
+        boundPages[position] = holder
+        holder.bind(items[position])
+        holder.update()
+    }
+
+    override fun onViewRecycled(holder: Page) {
+        boundPages.entries.removeAll { it.value === holder }
+        super.onViewRecycled(holder)
+    }
 
     inner class Page(val binding: ItemPlayerPageBinding) : RecyclerView.ViewHolder(binding.root) {
+
+        private lateinit var song: com.shubh.song.data.model.Song
+        private var lastLiked: Boolean? = null
+        private var lastDownloaded: Boolean? = null
+        private var lastProgress: Int? = null
+        private var lastShuffle: Boolean? = null
+        private var lastRepeat: Int? = null
+        private var lastAccent: Int = 0
+        private var lastCurrent: Boolean? = null
+
+        private val whiteTint = ResourcesCompat.getColorStateList(
+            binding.root.context.resources,
+            android.R.color.white,
+            binding.root.context.theme
+        )
 
         private val detector = GestureDetector(
             binding.root.context,
@@ -633,7 +660,38 @@ private class PlayerPagerAdapter(
             }
         )
 
-        fun bind() {
+        fun bind(song: com.shubh.song.data.model.Song) {
+            this.song = song
+            binding.tvSongTitle.text = Ui.html(song.name)
+            binding.tvSongArtist.text = Ui.html(
+                listOf(song.artists, song.album).filter { it.isNotBlank() }.joinToString("  •  ")
+            )
+            binding.tvCurrentTime.text = Ui.formatDuration(0)
+            binding.tvTotalTime.text = Ui.formatDuration(song.durationSec * 1000)
+
+            if (song.imageUrl.isNotBlank()) {
+                binding.ivPageArt.load(song.imageUrl) {
+                    placeholder(R.drawable.bg_placeholder)
+                    error(R.drawable.bg_placeholder)
+                    crossfade(220)
+                }
+                binding.ivArtistAvatar.load(song.imageUrl) {
+                    placeholder(R.drawable.bg_placeholder)
+                    error(R.drawable.bg_placeholder)
+                    crossfade(220)
+                }
+            } else {
+                binding.ivPageArt.setImageResource(R.drawable.bg_placeholder)
+                binding.ivArtistAvatar.setImageResource(R.drawable.bg_placeholder)
+            }
+
+            binding.btnArtist.setOnClickListener { onArtist(song) }
+            binding.btnLike.setOnClickListener { onLike(song) }
+            binding.btnDownload.setOnClickListener { onDownload(song) }
+            binding.btnShuffle.setOnClickListener { onShuffle() }
+            binding.btnRepeat.setOnClickListener { onRepeat() }
+            binding.btnMore.setOnClickListener { onMore(song) }
+
             binding.pageRoot.setOnTouchListener { _, event ->
                 detector.onTouchEvent(event)
                 when (event.actionMasked) {
@@ -647,6 +705,109 @@ private class PlayerPagerAdapter(
                 // Never consume: the vertical ViewPager2 must keep swiping.
                 false
             }
+
+            lastLiked = null
+            lastDownloaded = null
+            lastProgress = null
+            lastShuffle = null
+            lastRepeat = null
+            lastAccent = 0
+            lastCurrent = null
+        }
+
+        fun showScrubPosition(positionMs: Long) {
+            binding.tvCurrentTime.text = Ui.formatDuration(positionMs)
+        }
+
+        fun update() {
+            val isCurrent = state.currentSong?.id == song.id
+            if (isCurrent && !scrubbing) {
+                binding.tvCurrentTime.text = Ui.formatDuration(state.positionMs)
+                binding.tvTotalTime.text = Ui.formatDuration(
+                    if (state.durationMs > 0) state.durationMs else song.durationSec * 1000
+                )
+            } else if (!isCurrent && lastCurrent != false) {
+                binding.tvCurrentTime.text = Ui.formatDuration(0)
+                binding.tvTotalTime.text = Ui.formatDuration(song.durationSec * 1000)
+            }
+            lastCurrent = isCurrent
+
+            val liked = likedIds.contains(song.id)
+            if (liked != lastLiked || accent != lastAccent) {
+                binding.ivLike.setImageResource(
+                    if (liked) R.drawable.ic_favorite else R.drawable.ic_favorite_border
+                )
+                binding.ivLike.colorFilter =
+                    if (liked) {
+                        PorterDuffColorFilter(accent, android.graphics.PorterDuff.Mode.SRC_IN)
+                    } else {
+                        null
+                    }
+                binding.ivLike.setImageTintList(if (liked) null else whiteTint)
+                lastLiked = liked
+            }
+
+            val downloaded = downloadedIds.contains(song.id)
+            val progress = downloadProgress[song.id]
+            if (downloaded != lastDownloaded || progress != lastProgress || accent != lastAccent) {
+                updateDownloadState(downloaded, progress)
+                lastDownloaded = downloaded
+                lastProgress = progress
+            }
+
+            if (state.shuffleEnabled != lastShuffle ||
+                state.repeatMode != lastRepeat ||
+                accent != lastAccent
+            ) {
+                updatePlayModes()
+                lastShuffle = state.shuffleEnabled
+                lastRepeat = state.repeatMode
+            }
+
+            lastAccent = accent
+        }
+
+        private fun updateDownloadState(downloaded: Boolean, progress: Int?) {
+            when {
+                downloaded -> {
+                    binding.ivDownload.visibility = View.VISIBLE
+                    binding.pbDownload.visibility = View.GONE
+                    binding.ivDownload.setImageResource(R.drawable.ic_download_done)
+                    binding.ivDownload.imageTintList = ColorStateList.valueOf(accent)
+                }
+                progress != null && progress in 0..99 -> {
+                    binding.ivDownload.visibility = View.INVISIBLE
+                    binding.pbDownload.visibility = View.VISIBLE
+                    binding.pbDownload.isIndeterminate = progress <= 0
+                    binding.pbDownload.progress = if (progress <= 0) 0 else progress
+                }
+                else -> {
+                    binding.ivDownload.visibility = View.VISIBLE
+                    binding.pbDownload.visibility = View.GONE
+                    binding.ivDownload.setImageResource(R.drawable.ic_download)
+                    binding.ivDownload.imageTintList = whiteTint
+                }
+            }
+        }
+
+        private fun updatePlayModes() {
+            val dim = Color.argb(179, 255, 255, 255)
+            fillSegment(binding.btnShuffle, state.shuffleEnabled, accent)
+            binding.ivShuffle.setColorFilter(if (state.shuffleEnabled) Color.WHITE else dim)
+
+            val repeatOne = state.repeatMode == Player.REPEAT_MODE_ONE
+            fillSegment(binding.btnRepeat, repeatOne, accent)
+            binding.tvRepeatBadge.visibility = if (repeatOne) View.VISIBLE else View.GONE
+            binding.tvRepeatBadge.backgroundTintList = ColorStateList.valueOf(accent)
+            binding.ivRepeat.setColorFilter(
+                if (state.repeatMode == Player.REPEAT_MODE_OFF) dim else accent
+            )
+        }
+
+        private fun fillSegment(view: View, filled: Boolean, color: Int) {
+            (view.background as? android.graphics.drawable.GradientDrawable)?.setColor(
+                if (filled) color else Color.TRANSPARENT
+            )
         }
     }
 }

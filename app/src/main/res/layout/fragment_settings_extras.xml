@@ -145,7 +145,7 @@
                     android:textColor="@color/accent"
                     android:textSize="13sp"
                     android:textStyle="bold"
-                    app:icon="@drawable/ic_speed"
+                    app:icon="@drawable/ic_car"
                     app:iconSize="18dp"
                     app:iconTint="@color/accent" />
             </LinearLayout>

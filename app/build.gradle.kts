@@ -13,6 +13,16 @@ val localProps = Properties().apply {
     if (f.exists()) f.inputStream().use { load(it) }
 }
 
+// .env is the primary place for the API URL; local.properties is a fallback
+// (and still holds sdk.dir for the Android toolchain).
+val envProps = Properties().apply {
+    val f = rootProject.file(".env")
+    if (f.exists()) f.inputStream().use { load(it) }
+}
+
+val apiBaseUrl = envProps.getProperty("JIOSAAVN_API_BASE_URL")
+    ?: localProps.getProperty("JIOSAAVN_API_BASE_URL", "")
+
 android {
     namespace = "com.shubh.song"
     compileSdk = 35
@@ -22,7 +32,7 @@ android {
         minSdk = 23
         targetSdk = 35
         versionCode = 4
-        versionName = "1.1.0"
+        versionName = "1.1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -37,14 +47,14 @@ android {
             buildConfigField(
                 "String",
                 "API_BASE_URL",
-                "\"${localProps.getProperty("JIOSAAVN_API_BASE_URL", "")}\""
+                "\"$apiBaseUrl\""
             )
         }
         debug {
             buildConfigField(
                 "String",
                 "API_BASE_URL",
-                "\"${localProps.getProperty("JIOSAAVN_API_BASE_URL", "")}\""
+                "\"$apiBaseUrl\""
             )
         }
     }

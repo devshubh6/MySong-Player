@@ -55,6 +55,8 @@ class LibraryRepository(context: Context) {
     fun observeLikedSongs(): Flow<List<Song>> =
         likedDao.observeLikedSongs().map { list -> list.map { Song.fromEntity(it) } }
 
+    fun observeLikedIds(): Flow<List<String>> = likedDao.observeLikedIds()
+
     suspend fun toggleLike(song: Song, liked: Boolean) {
         upsertSong(song)
         if (liked) {
@@ -69,6 +71,8 @@ class LibraryRepository(context: Context) {
 
     fun observeDownloadedSongs(): Flow<List<Song>> =
         downloadsDao.observeDownloadedSongs().map { list -> list.map { Song.fromEntity(it) } }
+
+    fun observeDownloadedIds(): Flow<List<String>> = downloadsDao.observeDownloadedIds()
 
     suspend fun downloadFilePath(songId: String): String? = downloadsDao.filePathOf(songId)
 

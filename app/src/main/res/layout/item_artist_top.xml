@@ -85,7 +85,7 @@
         android:textAllCaps="false"
         app:cornerRadius="24dp"
         app:elevation="0dp"
-        app:icon="@drawable/ic_speed"
+        app:icon="@drawable/ic_radio"
         app:iconGravity="textStart"
         app:iconSize="18dp"
         app:iconTint="@color/accent"

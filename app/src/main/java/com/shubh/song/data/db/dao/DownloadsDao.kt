@@ -30,6 +30,9 @@ interface DownloadsDao {
     )
     fun observeDownloadedSongs(): Flow<List<SongEntity>>
 
+    @Query("SELECT songId FROM downloads ORDER BY addedAt DESC")
+    fun observeDownloadedIds(): Flow<List<String>>
+
     @Query("SELECT filePath FROM downloads WHERE songId = :songId")
     suspend fun filePathOf(songId: String): String?
 }

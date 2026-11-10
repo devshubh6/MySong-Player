@@ -103,7 +103,7 @@ Built with **Kotlin + Jetpack (Media3 · Room · ViewBinding · StateFlow)** on 
 | Images | Coil 2.6.0 |
 | Others | AppCompat, Fragment-ktx, Activity-ktx, ConstraintLayout, RecyclerView, SwipeRefreshLayout |
 
-> All icons are hand-drawn Android vector drawables (.xml) — no external assets.
+> All icons are **Lucide** vector icons converted to Android vector drawables (.xml) — no external assets.
 
 ---
 
@@ -423,4 +423,5 @@ Alternatively, open in **AndroidIDE** and hit **Run**.
 
 - **API**: JioSaavn Unofficial.
 - **Libraries**: Media3 · Room · Retrofit · Coil · Coroutines · Material.
+- **Icons**: [Lucide](https://lucide.dev) (ISC License).
 - **Author**: Shubham Singh Yadav — https://github.com/devshubh6

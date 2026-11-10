@@ -37,6 +37,16 @@ class PlayerViewModel : ViewModel() {
         else repository.isDownloaded(id)
     }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
+    /** All liked song ids — lets every player page paint its own heart. */
+    val likedIds: StateFlow<Set<String>> = repository.observeLikedIds()
+        .map { ids -> ids.toSet() }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptySet())
+
+    /** All downloaded song ids — lets every player page paint its own badge. */
+    val downloadedIds: StateFlow<Set<String>> = repository.observeDownloadedIds()
+        .map { ids -> ids.toSet() }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptySet())
+
     val downloadProgress: StateFlow<Map<String, Int>> = DownloadEngine.progress
 
     val sleepRemainingMs: StateFlow<Long?> = SleepTimer.remainingMs
@@ -49,7 +59,12 @@ class PlayerViewModel : ViewModel() {
 
     fun toggleLike() {
         val song = currentSong() ?: return
-        val liked = !isLiked.value
+        toggleLikeFor(song, isLiked.value)
+    }
+
+    /** Toggles the like flag for any page, not just the playing track. */
+    fun toggleLikeFor(song: Song, currentlyLiked: Boolean) {
+        val liked = !currentlyLiked
         NotifLike.set(song.id, liked)
         viewModelScope.launch {
             repository.toggleLike(song, liked)
@@ -58,7 +73,12 @@ class PlayerViewModel : ViewModel() {
 
     fun downloadCurrent() {
         val song = currentSong() ?: return
-        if (isDownloaded.value || DownloadEngine.isActive(song.id)) return
+        download(song)
+    }
+
+    /** Starts a download for any page's song. */
+    fun download(song: Song) {
+        if (downloadedIds.value.contains(song.id) || DownloadEngine.isActive(song.id)) return
         DownloadEngine.start(song)
     }
 

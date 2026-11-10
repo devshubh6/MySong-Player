@@ -3,6 +3,255 @@
     android:id="@+id/page_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/transparent"
+    android:background="@android:color/black"
     android:clickable="true"
-    android:focusable="true" />
+    android:focusable="true">
+
+    <!-- Full-screen artwork (edge-to-edge, centre-cropped). -->
+    <ImageView
+        android:id="@+id/iv_page_art"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:importantForAccessibility="no"
+        android:scaleType="centerCrop" />
+
+    <!-- Per-page scrim so this song's HUD text stays readable. -->
+    <View
+        android:id="@+id/iv_page_gradient"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_player_bottom_gradient"
+        android:importantForAccessibility="no" />
+
+    <!-- Bottom HUD: artist profile (clickable) + playback timers.
+         No solid scrim here — the bottom gradient keeps the text readable
+         without the old black band. -->
+    <LinearLayout
+        android:id="@+id/player_hud"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="32dp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="8dp">
+
+            <!-- Reels-style clickable artist profile & song details -->
+            <LinearLayout
+                android:id="@+id/btn_artist"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp">
+
+                <ImageView
+                    android:id="@+id/iv_artist_avatar"
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
+                    android:background="@drawable/bg_round_art"
+                    android:clipToOutline="true"
+                    android:scaleType="centerCrop" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tv_song_title"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:shadowColor="#66000000"
+                        android:shadowDy="1"
+                        android:shadowRadius="4"
+                        android:textColor="#FFFFFF"
+                        android:textSize="17sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_song_artist"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:shadowColor="#66000000"
+                        android:shadowDy="1"
+                        android:shadowRadius="4"
+                        android:textColor="#EBFFFFFF"
+                        android:textSize="13sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Floating playback timers, left-anchored and kept clear of the
+                 right action rail (no more overlap under the 3-dots button) -->
+            <LinearLayout
+                android:id="@+id/timers_row"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tv_current_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="00:00"
+                    android:shadowColor="#66000000"
+                    android:shadowDy="1"
+                    android:shadowRadius="3"
+                    android:textColor="#F2FFFFFF"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tv_total_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="00:00"
+                    android:shadowColor="#66000000"
+                    android:shadowDy="1"
+                    android:shadowRadius="3"
+                    android:textColor="#CCFFFFFF"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Bottom-right vertical action rail: Like / Download / Shuffle / Repeat / More.
+         Floats strictly ABOVE this page's HUD so no button overlaps the bar. -->
+    <LinearLayout
+        android:id="@+id/side_toolbar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="112dp"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:id="@+id/btn_like"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/bg_glass_circle">
+
+            <ImageView
+                android:id="@+id/iv_like"
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_favorite_border"
+                android:tint="#FFFFFF" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/btn_download"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/bg_glass_circle">
+
+            <ImageView
+                android:id="@+id/iv_download"
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_download"
+                android:tint="#FFFFFF" />
+
+            <ProgressBar
+                android:id="@+id/pb_download"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:layout_gravity="center"
+                android:indeterminateTint="#FFFFFF"
+                android:progressTint="#FFFFFF"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <!-- Shuffle toggle (accent-filled circle while active) -->
+        <FrameLayout
+            android:id="@+id/btn_shuffle"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/bg_glass_circle"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:id="@+id/iv_shuffle"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_shuffle"
+                android:tint="#FFFFFF" />
+        </FrameLayout>
+
+        <!-- Repeat toggle (accent-filled circle while active, "1" badge for one) -->
+        <FrameLayout
+            android:id="@+id/btn_repeat"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/bg_glass_circle"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:id="@+id/iv_repeat"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_repeat"
+                android:tint="#FFFFFF" />
+
+            <TextView
+                android:id="@+id/tv_repeat_badge"
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:layout_gravity="top|end"
+                android:layout_marginEnd="2dp"
+                android:layout_marginTop="2dp"
+                android:background="@drawable/bg_seek_thumb"
+                android:gravity="center"
+                android:text="1"
+                android:textColor="@color/text_on_accent"
+                android:textSize="9sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/btn_more"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@drawable/bg_glass_circle">
+
+            <ImageView
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_more_vert"
+                android:tint="#FFFFFF" />
+        </FrameLayout>
+    </LinearLayout>
+</FrameLayout>
