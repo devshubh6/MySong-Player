@@ -5,6 +5,7 @@
 
     <!-- Tabs -->
     <string name="tab_home">Home</string>
+    <string name="tab_search">Search</string>
     <string name="tab_library">Library</string>
     <string name="tab_settings">Settings</string>
 
@@ -272,8 +273,7 @@
     <string name="cache_cleared">Cache cleared</string>
     <string name="section_about">About</string>
     <string name="about_version">App Version: %1$s</string>
-    <string name="about_developer">Developer: Shubham Singh Yadav</string>
-    <string name="about_developer_desc">B.Tech Student · Android &amp; Backend Developer</string>
+    <string name="about_developer">GitHub: Devshubh6</string>
     <string name="about_github">GitHub: https://github.com/devshubh6</string>
     <string name="social_github">GitHub</string>
     <string name="social_instagram">Instagram</string>

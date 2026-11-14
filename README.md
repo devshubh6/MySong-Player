@@ -56,12 +56,14 @@ Built with **Kotlin + Jetpack (Media3 · Room · ViewBinding · StateFlow)** on 
 - Shimmer loading skeletons, pull-to-refresh, offline-aware fallback.
 
 **Search (`SearchFragment`)**
+- Dedicated **bottom-nav tab between Home and Library**; the old Home-header search icon is removed and the input auto-focuses on open.
 - Debounced live suggestions (280 ms), recent-search chips, 6 "Browse All" categories.
 - Full search with **Top Artist card** (`Play Artist Radio`), playable songs, and **paged infinite scroll** (30 / page).
-- Keyboard-aware layout (IME insets) — results never hide under the soft keyboard.
+- Keyboard-aware layout (IME insets) — results never hide under the soft keyboard; system back returns to Home.
 
 **Player (`PlayerActivity`)**
-- Vertical swipeable artwork pages; tap = play/pause, long-press = 2×.
+- Vertical swipeable reels: the whole page (full-bleed artwork + title/artist/timers HUD + Like/Download/Shuffle/Repeat/More rail) moves with the swipe, with a subtle 92%→100% scale.
+- Tap = play/pause, long-press = 2×, double-tap = ±10 s; no central buffering spinner or HUD background band.
 - Seek bar, shuffle/repeat segmented pill, Like, Download, Queue, Lyrics, Sleep Timer, Track Options.
 - **Playback signature chip** cycling `1x → Slowed + Reverb → Nightcore`.
 
@@ -188,8 +190,8 @@ PlaybackManager (object singleton) ──► ExoPlayer + AudioEffects + MediaSes
 ```
 
 - **No DI framework** — `MySongApp.instance` singletons, `AppViewModelFactory` doing manual `create()` mapping.
-- **Single-activity with fragments** hosted in `MainActivity`; full-search/pages open as **overlay fragments** added to `R.id.nav_host` with slide animations (`OverlayNav`).
-- **Chrome management** — `MainActivity.setSearchMode/refreshChrome()` hides the bottom nav & mini player while any overlay (`search_fragment`/`artist_detail`/`album_detail`) is present. Derived from the FragmentManager, so chrome self-heals after any back-path.
+- **Single-activity with fragments** hosted in `MainActivity`; Home / Search / Library / Settings are **bottom-nav tabs**, while artist & album pages open as **overlay fragments** added to `R.id.nav_host` with slide animations (`OverlayNav`).
+- **Chrome management** — `MainActivity.setSearchMode/refreshChrome()` hides the bottom nav & mini player while an artist/album overlay (`artist_detail`/`album_detail`) is present. Search is a normal tab and keeps the chrome visible; its system back returns to Home. Derived from the FragmentManager, so chrome self-heals after any back-path.
 
 ---
 
@@ -305,6 +307,8 @@ Encrypted (AES/GCM, Keystore-backed) via `SettingsPrefs`.
 
 ## Search System
 
+- Opens from the **Search tab between Home and Library** (the Home header no longer has a search button); bottom nav + mini player stay visible.
+- Input auto-focuses on tab open; system back returns to the Home tab.
 - Suggestion debounce 280 ms, results of up to 8 tracks.
 - **Infinite paging** — `searchSongs(query, page, 30)`; the scroll listener triggers when `!canScrollVertically(1)`.
 - **Top Artist card** → `MusicRepository.matchTopArtist(query)`:
@@ -415,6 +419,7 @@ Alternatively, open in **AndroidIDE** and hit **Run**.
 | 12 | **Rail above gradient + reels transform v2 + App Updates + warning fix**: side action rail re-anchored to float strictly ABOVE the bottom HUD/gradient (`marginBottom` 28dp→112dp, 16dp from the right edge) so Like/Download/Shuffle/Repeat/⋯ never overlap the dark bar; `ReelsPageTransformer` rewritten to the true Shorts formula — current page slides out full-frame while fading, incoming page rises from below scaled 85%→100% (depth shift, symmetric in both swipe directions); **App Updates** card on the Settings hub (subtitle "Check for new releases on GitHub") opens a liquid-glass `UpdateBottomSheetFragment` showing app name + **Current Version: v1.0.0** (read from the installed package) with a prominent accent **Check for Updates** button → `Intent.ACTION_VIEW` to `github.com/devshubh6/MySong-Player/releases` (crash-guarded, Toast fallback); removed the redundant `?:` on the non-nullable `ivPlayPauseIndicator` binding in `PlayerActivity` — APK green (13 848 279 B, zero warnings) |
 | 13 | **Live-scrubbing bottom seekbar + unified accent engine + v1.0.1**: the bottom timeline is now an interactive segway — 3dp resting line pinned at the very bottom edge that thickens to 6dp on `ACTION_DOWN` for a comfy touch target, and scrubbing seeks **continuously** under the finger (`seekTo(duration ⋅ progress / 1000)` on every move, `playWhenReady` untouched → audio jumps instantly, never pauses); `ThemeUtils` renamed to **`ThemeManager`** — the unified accent engine adds `appBackground()`/`applyAppBackground()` (screen surface blended 12% toward the selected accent, full opacity) applied live to Home / Library / Search / Settings roots (player artwork backdrop untouched); MainActivity's accent collector now does one `recreate()` per real accent change (change-guarded, no re-create loop) so all tabs re-tint instantly (cards/borders/bottom-nav/progress were already accent-driven; tracker in prefs); `BuildConfig` enabled with `BuildConfig.VERSION_NAME` shown in Settings footer, About sub-screen and the App Updates sheet — APK green (12 596 408 B, zero warnings) |
 | 15 | **Version bump → v1.0.5** (`versionCode = 3`, `versionName = "1.0.5"`) — APK green (12 605 391 B) |
+| 16 | **Per-page reels chrome + Search tab move**: each pager page now owns its complete reel — full-bleed artwork, artist/title/timers HUD and Like/Download/Shuffle/Repeat/More rail all swipe together, with a subtle 92%→100% scale and no fade/translation; `offscreenPageLimit = 1`, per-page playback state, removed the central loading overlay + buffering pulse and the black HUD background band, artwork back to edge-to-edge `centerCrop`. Home-header search icon removed and **Search** added to the bottom nav between **Home** and **Library**; `SearchFragment` is now a regular tab (chrome stays visible, back arrow removed, system back → Home, category labels resolve lazily after attachment) — APK green (12 803 025 B) |
 | 14 | **Double-tap 10s skip + buffered progress + live accent buttons + social links**: the player pager now uses a `GestureDetector` — single-tap still toggles play/pause, long-press still holds 2× speed, and **double-tap seeks ±10s** (left half ⏪-10s, right half +10s⏩) with YouTube-style glass chips that slide in from the tapped side and fade (`onSkip` → `seekTo(currentPosition ± 10s)`, crash-guarded, playback keeps running); the bottom timeline now shows the **buffered portion** (`secondaryProgress` from ExoPlayer's `bufferedPosition`, pushed via `PlayerUiState.bufferedPositionMs`) behind the played progress plus a subtle indeterminate shimmer (`pb_buffering`, `#59FFFFFF`) whenever `STATE_BUFFERING`; **hardcoded green buttons fixed** — "Play All" (Album + Artist) and "Export Playlists" (Extras) swapped `@color/accent` → `?attr/colorPrimary` in XML and re-tint programmatically via `backgroundTintList = ColorStateList.valueOf(ThemeManager.accentColor())` in each fragment's `onResume()`, so pink/purple/blue/red accents now apply; About & Developer replaced the plain "GitHub: https://…" text with a **3-button social row** (44dp `bg_glass_circle` glass buttons: GitHub / Instagram / X, new `ic_github` / `ic_instagram` / `ic_x_twitter` vectors) launching each profile via crash-safe `ACTION_VIEW` — APK green (14 007 077 B, zero warnings) |
 
 ---

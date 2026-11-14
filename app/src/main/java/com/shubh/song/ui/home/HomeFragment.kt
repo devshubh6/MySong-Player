@@ -35,7 +35,6 @@ import com.shubh.song.ui.detail.AlbumDetailFragment
 import com.shubh.song.ui.detail.ArtistDetailFragment
 import com.shubh.song.media.PlaybackManager
 import com.shubh.song.ui.player.PlayerActivity
-import com.shubh.song.ui.search.SearchFragment
 import com.shubh.song.ui.sheets.LangFilterSheet
 import com.shubh.song.ui.sheets.SongOptionsBottomSheet
 import com.shubh.song.util.ThemeManager
@@ -80,7 +79,6 @@ class HomeFragment : Fragment() {
         setupRefresh()
         setupScrollPaging()
         setupLangFilter()
-        setupSearchEntry()
         applyAccentTints()
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -160,25 +158,6 @@ class HomeFragment : Fragment() {
                 viewModel.refresh()
             }.show(parentFragmentManager, "lang_filter")
         }
-    }
-
-    /** Opens the dedicated full-screen search page with a slide transition. */
-    private fun setupSearchEntry() {
-        binding.btnSearch.setOnClickListener { openSearch() }
-    }
-
-    private fun openSearch() {
-        val manager = parentFragmentManager
-        if (manager.findFragmentByTag(SearchFragment.TAG) != null) return
-        manager.beginTransaction()
-            .setCustomAnimations(
-                R.anim.slide_in_right,
-                R.anim.slide_out_left,
-                R.anim.slide_in_left,
-                R.anim.slide_out_right
-            )
-            .add(R.id.nav_host, SearchFragment(), SearchFragment.TAG)
-            .commitAllowingStateLoss()
     }
 
     /** Applies the subtle accent header glow + swipe colours. */

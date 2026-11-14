@@ -59,14 +59,16 @@ class SearchFragment : Fragment() {
     private lateinit var recentAdapter: RecentChipAdapter
     private lateinit var resultsAdapter: SearchResultsAdapter
 
-    private val categories = listOf(
-        SearchCategory(getStringSafe(R.string.search_category_pop), "pop songs", R.drawable.ic_music_note),
-        SearchCategory(getStringSafe(R.string.search_category_bollywood), "bollywood hits", R.drawable.ic_trending_up),
-        SearchCategory(getStringSafe(R.string.search_category_lofi), "lo-fi beats", R.drawable.ic_headset),
-        SearchCategory(getStringSafe(R.string.search_category_workout), "workout energy", R.drawable.ic_speed),
-        SearchCategory(getStringSafe(R.string.search_category_bhajans), "devotional bhajans", R.drawable.ic_star),
-        SearchCategory(getStringSafe(R.string.search_category_classics), "old classics", R.drawable.ic_music_note)
-    )
+    private val categories by lazy {
+        listOf(
+            SearchCategory(getStringSafe(R.string.search_category_pop), "pop songs", R.drawable.ic_music_note),
+            SearchCategory(getStringSafe(R.string.search_category_bollywood), "bollywood hits", R.drawable.ic_trending_up),
+            SearchCategory(getStringSafe(R.string.search_category_lofi), "lo-fi beats", R.drawable.ic_headset),
+            SearchCategory(getStringSafe(R.string.search_category_workout), "workout energy", R.drawable.ic_speed),
+            SearchCategory(getStringSafe(R.string.search_category_bhajans), "devotional bhajans", R.drawable.ic_star),
+            SearchCategory(getStringSafe(R.string.search_category_classics), "old classics", R.drawable.ic_music_note)
+        )
+    }
 
     private fun getStringSafe(resId: Int): String =
         try {
@@ -87,7 +89,6 @@ class SearchFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         ThemeManager.applyAppBackground(binding.root)
-        (activity as? MainActivity)?.setSearchMode(true)
 
         // Push the panels above the soft keyboard so results never hide under
         // it or leave a phantom gap at the bottom (adjustResize is on the
@@ -101,7 +102,7 @@ class SearchFragment : Fragment() {
 
         setupAdapters()
         setupInput()
-        setupBack()
+        setupBackNavigation()
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -193,18 +194,15 @@ class SearchFragment : Fragment() {
         binding.tvClearRecents.setOnClickListener { viewModel.clearRecents() }
     }
 
-    private fun setupBack() {
-        binding.btnBack.setOnClickListener { close() }
+    private fun setupBackNavigation() {
         requireActivity().onBackPressedDispatcher.addCallback(
             viewLifecycleOwner,
             object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() = close()
+                override fun handleOnBackPressed() {
+                    (activity as? MainActivity)?.showHomeTab()
+                }
             }
         )
-    }
-
-    private fun close() {
-        OverlayNav.close(this, this)
     }
 
     /** Switches between the browse panel and the results list. */

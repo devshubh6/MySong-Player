@@ -47,21 +47,6 @@
             </LinearLayout>
 
             <FrameLayout
-                android:id="@+id/btn_search"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_marginEnd="10dp"
-                android:background="@drawable/bg_glass_icon">
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_gravity="center"
-                    android:src="@drawable/ic_search"
-                    android:tint="@color/text_primary" />
-            </FrameLayout>
-
-            <FrameLayout
                 android:id="@+id/btn_lang_filter"
                 android:layout_width="36dp"
                 android:layout_height="36dp"

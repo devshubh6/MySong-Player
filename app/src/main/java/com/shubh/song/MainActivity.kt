@@ -34,12 +34,14 @@ class MainActivity : AppCompatActivity() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
     private val homeFragment = HomeFragment()
+    private val searchFragment = SearchFragment()
     private val libraryFragment = LibraryFragment()
     private val settingsFragment = SettingsFragment()
 
     private val fragments: Map<Int, Fragment> by lazy {
         mapOf(
             R.id.nav_home to homeFragment,
+            R.id.nav_search to searchFragment,
             R.id.nav_library to libraryFragment,
             R.id.nav_settings to settingsFragment
         )
@@ -118,27 +120,31 @@ class MainActivity : AppCompatActivity() {
     private var overlayDepth = 0
 
     /**
-     * True while any full-screen overlay page (search, artist, album) is present
+     * True while any full-screen overlay page (artist, album) is present
      * in the back stack. Re-derived from the FragmentManager instead of a depth
      * counter, so chrome state self-heals after process death, config changes,
      * or any removal path (system back, swipe, programmatic pop).
      */
     private fun overlayActive(): Boolean =
         listOf(
-            SearchFragment.TAG,
             ArtistDetailFragment.TAG,
             AlbumDetailFragment.TAG
         ).any { supportFragmentManager.findFragmentByTag(it)?.isAdded == true }
 
     /**
      * Hides the bottom navigation + mini player while a full-screen page
-     * (search, artist, album) is open. Uses GONE for the nav bar so the
-     * resized window never leaves a phantom black band under the mini player
-     * when the soft keyboard is shown.
+     * (artist, album) is open. Uses GONE for the nav bar so the resized window
+     * never leaves a phantom black band under the mini player when the soft
+     * keyboard is shown.
      */
     fun setSearchMode(active: Boolean) {
         overlayDepth = (overlayDepth + if (active) 1 else -1).coerceAtLeast(0)
         refreshChrome()
+    }
+
+    /** Returns to the Home tab (system-back target from the Search tab). */
+    fun showHomeTab() {
+        binding.bottomNav.selectedItemId = R.id.nav_home
     }
 
     /** Single source of truth for the activity chrome. Safe to call any time. */
