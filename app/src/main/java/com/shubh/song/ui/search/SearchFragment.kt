@@ -1,13 +1,13 @@
 package com.shubh.song.ui.search
 
 import android.annotation.SuppressLint
+import android.graphics.Rect
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import androidx.activity.OnBackPressedCallback
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -59,6 +59,10 @@ class SearchFragment : Fragment() {
     private lateinit var recentAdapter: RecentChipAdapter
     private lateinit var resultsAdapter: SearchResultsAdapter
 
+    private val imeLayoutListener = ViewTreeObserver.OnGlobalLayoutListener {
+        updateImePadding()
+    }
+
     private val categories by lazy {
         listOf(
             SearchCategory(getStringSafe(R.string.search_category_pop), "pop songs", R.drawable.ic_music_note),
@@ -90,15 +94,8 @@ class SearchFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         ThemeManager.applyAppBackground(binding.root)
 
-        // Push the panels above the soft keyboard so results never hide under
-        // it or leave a phantom gap at the bottom (adjustResize is on the
-        // activity; ime() reports the keyboard height).
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
-            val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
-            binding.nsvBrowse.setPadding(0, 0, 0, ime.bottom)
-            binding.resultsPanel.setPadding(0, 0, 0, ime.bottom)
-            insets
-        }
+        binding.root.viewTreeObserver.addOnGlobalLayoutListener(imeLayoutListener)
+        binding.root.post { updateImePadding() }
 
         setupAdapters()
         setupInput()
@@ -235,12 +232,31 @@ class SearchFragment : Fragment() {
         recentAdapter.submit(recents)
     }
 
+    /**
+     * Shrinks the tab only by the part actually covered by the IME. Reading the
+     * visible display frame avoids double-padding on devices where
+     * adjustResize already resized the window.
+     */
+    private fun updateImePadding() {
+        val current = _binding ?: return
+        val visibleFrame = Rect()
+        current.root.getWindowVisibleDisplayFrame(visibleFrame)
+        val location = IntArray(2)
+        current.root.getLocationOnScreen(location)
+        val bottomOverlap =
+            (location[1] + current.root.height - visibleFrame.bottom).coerceAtLeast(0)
+        if (current.root.paddingBottom != bottomOverlap) {
+            current.root.setPadding(0, 0, 0, bottomOverlap)
+        }
+    }
+
     override fun onResume() {
         super.onResume()
         binding.etSearchInput.requestFocus()
     }
 
     override fun onDestroyView() {
+        binding.root.viewTreeObserver.removeOnGlobalLayoutListener(imeLayoutListener)
         _binding = null
         super.onDestroyView()
     }
